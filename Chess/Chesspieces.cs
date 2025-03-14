@@ -91,29 +91,76 @@ namespace Chess
 
         public void GetMovePossibilities(Label[,] labels)
         {
-            // Iterate through the list of movement possibilities (piecemovementpossibilities)
+            // We need to organize pieceMovementPossibilities by direction
+            // This assumes pieceMovementPossibilities contains all possible moves for the piece
+
+            // Group movements by direction (up, down, left, right, diagonals)
+            var directions = new Dictionary<string, List<int[]>>();
+
+            // For a queen/bishop/rook, we need to organize directions properly
+            // Example for organizing directions:
+            directions["up"] = new List<int[]>();
+            directions["down"] = new List<int[]>();
+            directions["left"] = new List<int[]>();
+            directions["right"] = new List<int[]>();
+            directions["upLeft"] = new List<int[]>();
+            directions["upRight"] = new List<int[]>();
+            directions["downLeft"] = new List<int[]>();
+            directions["downRight"] = new List<int[]>();
+
+            // Populate each direction with appropriate movements
             foreach (var move in pieceMovementPossibilities)
             {
-                int newPosX = PositionX + move[0]; // Calculate the new X position based on current position and movement
-                int newPosY = PositionY + move[1]; // Calculate the new Y position based on current position and movement
+                int x = move[0];
+                int y = move[1];
 
-                // Ensure that the new position is within bounds
-                if (newPosX >= 0 && newPosX < 8 && newPosY >= 0 && newPosY < 8)
+                // Determine which direction this move belongs to
+                if (x == 0 && y < 0) directions["up"].Add(move);
+                else if (x == 0 && y > 0) directions["down"].Add(move);
+                else if (x < 0 && y == 0) directions["left"].Add(move);
+                else if (x > 0 && y == 0) directions["right"].Add(move);
+                else if (x < 0 && y < 0) directions["upLeft"].Add(move);
+                else if (x > 0 && y < 0) directions["upRight"].Add(move);
+                else if (x < 0 && y > 0) directions["downLeft"].Add(move);
+                else if (x > 0 && y > 0) directions["downRight"].Add(move);
+            }
+
+            // Now process each direction separately
+            foreach (var direction in directions.Values)
+            {
+                // Sort the moves from closest to farthest
+                var sortedMoves = direction.OrderBy(m => Math.Abs(m[0]) + Math.Abs(m[1])).ToList();
+
+                // Process moves in this direction until blocked
+                foreach (var move in sortedMoves)
                 {
-                    // Ensure that the target square is empty (no piece already present)
-                    if (labels[newPosY, newPosX].Image == null)
+                    int newPosX = PositionX + move[0];
+                    int newPosY = PositionY + move[1];
+
+                    // Check if in bounds
+                    if (newPosX >= 0 && newPosX < 8 && newPosY >= 0 && newPosY < 8)
                     {
-                        // If empty, display a dot and tag it as a valid move
-                        labels[newPosY, newPosX].Image = Properties.Resources.dot; // Assuming dot is a small image representing a possible move
-                        labels[newPosY, newPosX].Tag += "/Canmove"; // Tag it as a valid move
-
-                        Console.WriteLine($"Position ({newPosX}, {newPosY}) is empty.");
+                        // Check if square is empty
+                        if (labels[newPosY, newPosX].Image == null)
+                        {
+                            // Place a dot
+                            labels[newPosY, newPosX].Image = Properties.Resources.dot;
+                            labels[newPosY, newPosX].Tag += "/Canmove";
+                            Console.WriteLine($"Position ({newPosX}, {newPosY}) is empty.");
+                        }
+                        else if (labels[newPosY, newPosX].Image != Properties.Resources.dot)
+                        {
+                            // Found a piece in this direction, stop here
+                            Console.WriteLine($"Position ({newPosX}, {newPosY}) has a piece - stopping in this direction.");
+                            break; // Stop processing this direction
+                        }
                     }
-                }
-                else
-                {
-                    // Out of bounds (invalid position)
-                    Console.WriteLine($"Position ({newPosX}, {newPosY}) is out of bounds.");
+                    else
+                    {
+                        // Out of bounds
+                        Console.WriteLine($"Position ({newPosX}, {newPosY}) is out of bounds.");
+                        break; // Stop processing this direction
+                    }
                 }
             }
         }
