@@ -93,10 +93,8 @@ namespace Chess
         {
             // We need to organize pieceMovementPossibilities by direction
             // This assumes pieceMovementPossibilities contains all possible moves for the piece
-
             // Group movements by direction (up, down, left, right, diagonals)
             var directions = new Dictionary<string, List<int[]>>();
-
             // For a queen/bishop/rook, we need to organize directions properly
             // Example for organizing directions:
             directions["up"] = new List<int[]>();
@@ -107,13 +105,11 @@ namespace Chess
             directions["upRight"] = new List<int[]>();
             directions["downLeft"] = new List<int[]>();
             directions["downRight"] = new List<int[]>();
-
             // Populate each direction with appropriate movements
             foreach (var move in pieceMovementPossibilities)
             {
                 int x = move[0];
                 int y = move[1];
-
                 // Determine which direction this move belongs to
                 if (x == 0 && y < 0) directions["up"].Add(move);
                 else if (x == 0 && y > 0) directions["down"].Add(move);
@@ -125,18 +121,31 @@ namespace Chess
                 else if (x > 0 && y > 0) directions["downRight"].Add(move);
             }
 
+            // Get the current piece's color
+            string currentPieceColor = "";
+            if (labels[PositionY, PositionX].Tag != null && labels[PositionY, PositionX].Tag.ToString().Contains("/"))
+            {
+                string[] tagParts = labels[PositionY, PositionX].Tag.ToString().Split('/');
+                if (tagParts.Length > 1)
+                {
+                    string[] pieceParts = tagParts[1].Split('-');
+                    if (pieceParts.Length > 0)
+                    {
+                        currentPieceColor = pieceParts[0];
+                    }
+                }
+            }
+
             // Now process each direction separately
             foreach (var direction in directions.Values)
             {
                 // Sort the moves from closest to farthest
                 var sortedMoves = direction.OrderBy(m => Math.Abs(m[0]) + Math.Abs(m[1])).ToList();
-
                 // Process moves in this direction until blocked
                 foreach (var move in sortedMoves)
                 {
                     int newPosX = PositionX + move[0];
                     int newPosY = PositionY + move[1];
-
                     // Check if in bounds
                     if (newPosX >= 0 && newPosX < 8 && newPosY >= 0 && newPosY < 8)
                     {
@@ -150,11 +159,34 @@ namespace Chess
                         }
                         else if (labels[newPosY, newPosX].Image != Properties.Resources.dot)
                         {
+                            // Check if it's an opponent's piece
+                            string targetPieceColor = "";
+                            if (labels[newPosY, newPosX].Tag != null && labels[newPosY, newPosX].Tag.ToString().Contains("/"))
+                            {
+                                string[] tagParts = labels[newPosY, newPosX].Tag.ToString().Split('/');
+                                if (tagParts.Length > 1)
+                                {
+                                    string[] pieceParts = tagParts[1].Split('-');
+                                    if (pieceParts.Length > 0)
+                                    {
+                                        targetPieceColor = pieceParts[0];
+                                    }
+                                }
+                            }
+
+                            // If it's an opponent's piece, mark it as capturable
+                            if (!string.IsNullOrEmpty(targetPieceColor) && !string.IsNullOrEmpty(currentPieceColor) &&
+                                targetPieceColor != currentPieceColor)
+                            {
+                                // Don't replace the image, just add the Cantake tag
+                                labels[newPosY, newPosX].Tag += "/Cantake";
+                                Console.WriteLine($"Position ({newPosX}, {newPosY}) has an opponent's piece - can take.");
+                            }
+
                             // Found a piece in this direction, stop here
                             Console.WriteLine($"Position ({newPosX}, {newPosY}) has a piece - stopping in this direction.");
                             break; // Stop processing this direction
                         }
-                       
                     }
                     else
                     {
