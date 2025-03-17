@@ -154,6 +154,7 @@ namespace Chess
                             Console.WriteLine($"Position ({newPosX}, {newPosY}) has a piece - stopping in this direction.");
                             break; // Stop processing this direction
                         }
+                       
                     }
                     else
                     {
