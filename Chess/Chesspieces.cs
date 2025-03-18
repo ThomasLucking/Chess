@@ -176,11 +176,39 @@ namespace Chess
 
                             // If it's an opponent's piece, mark it as capturable
                             if (!string.IsNullOrEmpty(targetPieceColor) && !string.IsNullOrEmpty(currentPieceColor) &&
-                                targetPieceColor != currentPieceColor)
+                            targetPieceColor != currentPieceColor)
                             {
-                                // Don't replace the image, just add the Cantake tag
-                                labels[newPosY, newPosX].Tag += "/Cantake";
-                                Console.WriteLine($"Position ({newPosX}, {newPosY}) has an opponent's piece - can take.");
+                                // If this is showing possible moves (marking as "Cantake")
+                                if (!Convert.ToString(labels[newPosY, newPosX].Tag).Contains("/Cantake"))
+                                {
+                                    // Store original image before adding visual indicator
+                                    Image originalImage = labels[newPosY, newPosX].Image;
+
+                                    // Add a visual indicator for "Cantake" (e.g., red border, highlight, etc.)
+                                    // For example, you might create a new combined image with a red border
+                                    // This is a placeholder - implement your visual indicator logic here
+                                    // labels[newPosY, newPosX].BackColor = Color.Red; // Simple example
+
+                                    // Add the Cantake tag
+                                    labels[newPosY, newPosX].Tag += "/Cantake";
+                                    Console.WriteLine($"Position ({newPosX}, {newPosY}) has an opponent's piece - can take.");
+                                }
+                                // If player is actually making the move to a "Cantake" position
+                                else if (Convert.ToString(labels[newPosY, newPosX].Tag).Contains("/Cantake"))
+                                {
+                                    // Capture the piece at the destination
+                                    labels[newPosY, newPosX].Image = labels[newPosY, newPosX].Image;
+                                    labels[newPosY, newPosX].Tag = labels[newPosY, newPosX].Tag.ToString().Replace("/Cantake", "");
+
+                                    // Clear the original position
+                                    labels[newPosY, newPosX].Image = null;
+                                    labels[newPosY, newPosX].Tag = null;
+
+                                    Console.WriteLine($"Moved piece from ({newPosY}, {newPosX}) to ({newPosY}, {newPosX}) and captured opponent's piece.");
+
+                                    // After the move, clear all "Cantake" tags from the board
+                                    ClearAllCantakeTags();
+                                }
                             }
 
                             // Found a piece in this direction, stop here
@@ -241,16 +269,16 @@ namespace Chess
 
 
             }
-            
+
 
 
             // Cleanup potential move indicators ("/Canmove" tags) after the move
             foreach (var item in labels)
             {
+                // Handle Canmove tags
                 if (Convert.ToString(item.Tag).Contains("/Canmove"))
                 {
                     item.Image = null;
-
                     string[] tag = Convert.ToString(item.Tag).Split('/');
                     if (tag.Length > 1)
                     {
@@ -260,17 +288,20 @@ namespace Chess
                         }
                     }
                 }
+               
             }
 
-            
 
-
-
-
-
-
-
-
+        }
+        private void ClearAllCantakeTags()
+        {
+            foreach (var item in labels)
+            {
+                if (item != null && item.Tag != null && Convert.ToString(item.Tag).Contains("/Cantake"))
+                {
+                    item.Tag = Convert.ToString(item.Tag).Replace("/Cantake", "");
+                }
+            }
         }
 
 
