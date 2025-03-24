@@ -178,20 +178,17 @@ namespace Chess
                             if (!string.IsNullOrEmpty(targetPieceColor) && !string.IsNullOrEmpty(currentPieceColor) &&
                                 targetPieceColor != currentPieceColor)
                             {
-                                // Clear the current image and tag in the new position before adding the new piece
-                                if (labels[newPosY, newPosX].Image != null)
-                                {
-                                    labels[newPosY, newPosX].Image = null;
-                                }
+                                labels[newPosY, newPosX].Image = null;
+                                labels[newPosY, newPosX].Tag = null;
 
-                                if (labels[newPosY, newPosX].Tag != null)
-                                {
-                                    labels[newPosY, newPosX].Tag = null;
-                                }
+                                // Move the current piece to the new position
+                                labels[newPosY, newPosX].Image = labels[currentPosY, currentPosX].Image;
+                                labels[newPosY, newPosX].Tag = currentPieceColor;
 
-                                // Add the "Cantake" tag and set the image to the current piece's image
-                                labels[newPosY, newPosX].Tag += "/Cantake";
-                                labels[newPosY, newPosX].Image = image;
+                                // Clear the old position
+                                labels[currentPosY, currentPosX].Image = null;
+                                labels[currentPosY, currentPosX].Tag = null;
+
 
                                 Console.WriteLine($"Position ({newPosX}, {newPosY}) has an opponent's piece - can take.");
                             }
