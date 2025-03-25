@@ -177,21 +177,32 @@ namespace Chess
                             // If it's an opponent's piece, mark it as capturable
                             if (!string.IsNullOrEmpty(targetPieceColor) && !string.IsNullOrEmpty(currentPieceColor) &&
                                 targetPieceColor != currentPieceColor)
-                            {
-                                labels[newPosY, newPosX].Image = null;
-                                labels[newPosY, newPosX].Tag = null;
+                            {   // Store the original piece image before making any modifications
+                                Image currentPieceImage = labels[PositionY, PositionX].Image;
 
-                                // Move the current piece to the new position
-                                labels[newPosY, newPosX].Image = labels[currentPosY, currentPosX].Image;
-                                labels[newPosY, newPosX].Tag = currentPieceColor;
+                                // Move the piece to the new position
+                                labels[newPosY, newPosX].Image = currentPieceImage;
 
-                                // Clear the old position
-                                labels[currentPosY, currentPosX].Image = null;
-                                labels[currentPosY, currentPosX].Tag = null;
+                                // Clear the original position
+                                labels[PositionY, PositionX].Image = null;
 
+                                // Copy the tag from the original position
+                                labels[newPosY, newPosX].Tag = labels[PositionY, PositionX].Tag;
 
-                                Console.WriteLine($"Position ({newPosX}, {newPosY}) has an opponent's piece - can take.");
+                                // Clear the original position's tag
+                                labels[PositionY, PositionX].Tag = null;
+
+                                // Mark as a capture
+                                // labels[newPosY, newPosX].Tag += "/Cantake";
+
+                                Console.WriteLine($"Enemy piece captured at ({newPosX}, {newPosY})");
+
+                                // Update the piece's position
+                                PositionX = newPosX;
+                                PositionY = newPosY; 
+
                             }
+                            
 
 
                             // Found a piece in this direction, stop here
@@ -208,6 +219,12 @@ namespace Chess
                 }
             }
         }
+
+        
+
+
+
+
 
 
 
