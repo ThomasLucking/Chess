@@ -266,6 +266,7 @@ namespace Chess
                         // Delete tag
                         string[] tag = Convert.ToString(item.Tag).Split('/');
                         if (tag.Length > 1)
+
                         {
                             if (tag[1] == "Canmove")
                             {

@@ -175,34 +175,30 @@ namespace Chess
                             }
 
                             // If it's an opponent's piece, mark it as capturable
-                            if (!string.IsNullOrEmpty(targetPieceColor) && !string.IsNullOrEmpty(currentPieceColor) &&
-                                targetPieceColor != currentPieceColor)
-                            {   // Store the original piece image before making any modifications
-                                Image currentPieceImage = labels[PositionY, PositionX].Image;
+                            if (!string.IsNullOrEmpty(targetPieceColor) && targetPieceColor != currentPieceColor)
+                            {
+                                // Image currentPieceImage = labels[PositionY, PositionX].Image;
 
                                 // Move the piece to the new position
-                                labels[newPosY, newPosX].Image = currentPieceImage;
+                                //labels[newPosY, newPosX].Image = currentPieceImage;
+
+                                // Remove the opponent's image (capturing the opponent's piece)
+                                //labels[newPosY, newPosX].Tag = labels[PositionY, PositionX].Tag;
 
                                 // Clear the original position
-                                labels[PositionY, PositionX].Image = null;
-
-                                // Copy the tag from the original position
-                                labels[newPosY, newPosX].Tag = labels[PositionY, PositionX].Tag;
-
-                                // Clear the original position's tag
-                                labels[PositionY, PositionX].Tag = null;
+                                //labels[PositionY, PositionX].Image = null;
+                                //labels[PositionY, PositionX].Tag = null;
 
                                 // Mark as a capture
-                                // labels[newPosY, newPosX].Tag += "/Cantake";
+                                labels[newPosY, newPosX].Tag += "/Cantake"; // Mark that it’s a captured piece
 
                                 Console.WriteLine($"Enemy piece captured at ({newPosX}, {newPosY})");
 
                                 // Update the piece's position
-                                PositionX = newPosX;
-                                PositionY = newPosY; 
-
+                                //PositionX = newPosX;
+                                //PositionY = newPosY;
                             }
-                            
+
 
 
                             // Found a piece in this direction, stop here
@@ -248,9 +244,10 @@ namespace Chess
 
 
             // Check if there is a piece in the way (using the Tag or Image property)
+
+
             
 
-            // Check if the new position is within bounds
             if (newX >= 0 && newX < labels.GetLength(1) && newY >= 0 && newY < labels.GetLength(0))
             {
                 // If no pieces block the move, proceed with moving the piece
@@ -267,6 +264,30 @@ namespace Chess
                 
 
 
+
+            }
+            if (labels[newY, newX].Tag != null && Convert.ToString(labels[newY, newX].Tag).Contains("/Cantake"))
+            {
+                // Capture logic here
+                 Image currentPieceImage = labels[PositionY, PositionX].Image;
+
+                // Move the piece to the new position
+                labels[newY, newX].Image = currentPieceImage;
+
+                // Remove the opponent's image (capturing the opponent's piece)
+                labels[newY, newX].Tag = labels[PositionY, PositionX].Tag;
+
+                // Clear the original position
+                labels[PositionY, PositionX].Image = null;
+                labels[PositionY, PositionX].Tag = null;
+
+                //PositionX = newPosX;
+                //PositionY = newPosY;
+                // Mark capture
+                labels[newY, newX].Tag += "/Captured";
+                Console.WriteLine("Capture made!");
+                PositionX = newX;
+                PositionY = newY;
 
             }
 
