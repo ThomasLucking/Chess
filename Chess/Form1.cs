@@ -244,63 +244,108 @@ namespace Chess
         {
 
         }
-        
+
         public void ChessCase_Click(object sender, EventArgs e)
         {
-            System.Windows.Forms.Label clicked_label = sender as System.Windows.Forms.Label; // Get clicked label in "clicked_label" variable
-
+            System.Windows.Forms.Label clicked_label = sender as System.Windows.Forms.Label;
             string coordinates = Convert.ToString(clicked_label.Tag);
 
+            // For debugging
             MessageBox.Show(Convert.ToString(clicked_label.Tag));
-            
-            if (chesspieceClicked != null && !Convert.ToString(clicked_label.Tag).Contains("/Canmove"))
+
+            // If there's already a piece selected and we click somewhere that's not a valid move
+            if (chesspieceClicked != null &&
+                !Convert.ToString(clicked_label.Tag).Contains("/Canmove") &&
+                !Convert.ToString(clicked_label.Tag).Contains("/Cantake"))
             {
-                foreach (var item in labels)
+                // Clear all move indicators
+                ClearMoveIndicators();
+                chesspieceClicked = null;
+                return;
+            }
+
+            // If we clicked on a piece to select it
+            if (chesspieceClicked == null && clicked_label.Image != null && clicked_label.Image != Properties.Resources.dot)
+            {
+                foreach (var item in pieces)
                 {
-                    
-                    if (Convert.ToString(item.Tag).Contains("/Canmove"))
+                    // Extract X and Y positions from the tag
+                    string[] tagParts = coordinates.Split('/');
+                    if (tagParts.Length > 0)
                     {
-                        // Delete image
-                        item.Image = null;
-
-                        // Delete tag
-                        string[] tag = Convert.ToString(item.Tag).Split('/');
-                        if (tag.Length > 1)
-
+                        string[] posParts = tagParts[0].Split('-');
+                        if (posParts.Length >= 2)
                         {
-                            if (tag[1] == "Canmove")
+                            int clickedX = Convert.ToInt32(posParts[0]);
+                            int clickedY = Convert.ToInt32(posParts[1]);
+
+                            // If this is the piece at the clicked position
+                            if (item.PositionX == clickedX && item.PositionY == clickedY)
                             {
-                                item.Tag = tag[0];
+                                item.GetMovePossibilities(labels);
+                                chesspieceClicked = item;
+                                break;
                             }
                         }
                     }
                 }
             }
-
-            foreach (var item in pieces)
+            // If we clicked on a valid move or capture
+            else if (chesspieceClicked != null &&
+                    (Convert.ToString(clicked_label.Tag).Contains("/Canmove") ||
+                     Convert.ToString(clicked_label.Tag).Contains("/Cantake")))
             {
-                if (Convert.ToString(item.PositionX) != Convert.ToString(coordinates[0]) || Convert.ToString(item.PositionY) != Convert.ToString(coordinates[2]))
+                // Extract X and Y positions from the tag
+                string[] tagParts = coordinates.Split('/');
+                if (tagParts.Length > 0)
                 {
-                    continue;
+                    string[] posParts = tagParts[0].Split('-');
+                    if (posParts.Length >= 2)
+                    {
+                        int clickedX = Convert.ToInt32(posParts[0]);
+                        int clickedY = Convert.ToInt32(posParts[1]);
+
+                        // Move the piece to the new position
+                        chesspieceClicked.MovePiece(Convert.ToString(clickedX), Convert.ToString(clickedY), labels);
+                        chesspieceClicked = null;
+                    }
                 }
-                item.GetMovePossibilities(labels);
-                chesspieceClicked = item;
             }
-
-
-            if (Convert.ToString(clicked_label.Tag).Contains("/Canmove"))
-            {
-                if (chesspieceClicked != null)
-                {
-                    chesspieceClicked.MovePiece(Convert.ToString(coordinates[0]), Convert.ToString(coordinates[2]), labels);
-                }
-
-            }
-            // If tag contains "/Canmove"
-            
         }
-        
+
+        // Helper method to clear all move indicators
+        private void ClearMoveIndicators()
+        {
+            foreach (var item in labels)
+            {
+                if (item.Tag != null)
+                {
+                    string tagStr = Convert.ToString(item.Tag);
+
+                    // Handle Canmove tags
+                    if (tagStr.Contains("/Canmove"))
+                    {
+                        item.Image = null;
+                        string[] tag = tagStr.Split('/');
+                        if (tag.Length > 0)
+                        {
+                            item.Tag = tag[0]; // Remove all tags after the first "/"
+                        }
+                    }
+
+                    // Handle Cantake tags
+                    if (tagStr.Contains("/Cantake"))
+                    {
+                        // Don't clear the image for capturable pieces
+                        string[] tag = tagStr.Split('/');
+                        if (tag.Length > 0)
+                        {
+                            item.Tag = tag[0]; // Remove all tags after the first "/"
+                        }
+                    }
+                }
+            }
+        }
 
     }
-
 }

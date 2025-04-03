@@ -177,46 +177,19 @@ namespace Chess
                             // If it's an opponent's piece, mark it as capturable
                             if (!string.IsNullOrEmpty(targetPieceColor) && targetPieceColor != currentPieceColor)
                             {
-                                Image currentPieceImage = labels[PositionY, PositionX].Image;
+                                // Mark as a capturable piece with a visual indicator
+                                // Store the original image to restore it if needed
+                                Image originalImage = labels[newPosY, newPosX].Image;
 
-                                // Move the piece to the new position
-                                labels[newPosY, newPosX].Image = currentPieceImage;
+                                // You could overlay a marker or change the background to indicate a capturable piece
+                                // For now, let's add a tag to mark it as capturable
+                                labels[newPosY, newPosX].Tag += "/Cantake";
 
-                                // Remove the opponent's image (capturing the opponent's piece)
-                                //labels[newPosY, newPosX].Tag = labels[PositionY, PositionX].Tag;
+                                // Optionally, add a visual indicator (like a red border or background)
+                                // This would require custom drawing or a modified image
 
-                                string[] piecePartsWinner = labels[PositionY, PositionX].Tag.ToString().Split('/');
-                                string[] pieceParts = labels[newPosY, newPosX].Tag.ToString().Split('/');
-                                if (pieceParts.Length > 0)
-                                {
-                                    labels[newPosY, newPosX].Tag = pieceParts[0] + "/" + piecePartsWinner[1];
-                                }
-
-
-                                // Clear the original position
-                                labels[PositionY, PositionX].Image = null;
-
-
-                                if (pieceParts.Length > 0)
-                                {
-                                    labels[PositionY, PositionX].Tag = piecePartsWinner[0];
-                                }
-
-
-
-                                //labels[PositionY, PositionX].Tag = labels[newPosY, newPosX].Tag;
-
-                                // Mark as a capture
-                                //labels[newPosY, newPosX].Tag += "/Cantake"; // Mark that it’s a captured piece
-
-                                //Console.WriteLine($"Enemy piece captured at ({newPosX}, {newPosY})");
-
-                                // Update the piece's position
-                                PositionX = newPosX;
-                                PositionY = newPosY;
+                                Console.WriteLine($"Enemy piece at ({newPosX}, {newPosY}) can be captured.");
                             }
-
-
 
                             // Found a piece in this direction, stop here
                             Console.WriteLine($"Position ({newPosX}, {newPosY}) has a piece - stopping in this direction.");
@@ -253,21 +226,28 @@ namespace Chess
 
         public void MovePiece(string movex, string movey, Label[,] labels)
         {
-            
             // Convert string to integer for movement
             int newX = Convert.ToInt32(movex);
             int newY = Convert.ToInt32(movey);
 
-
-
-            // Check if there is a piece in the way (using the Tag or Image property)
-
-
-            
-
             if (newX >= 0 && newX < labels.GetLength(1) && newY >= 0 && newY < labels.GetLength(0))
             {
-                // If no pieces block the move, proceed with moving the piece
+                bool isCapture = false;
+                string originalTag = "";
+
+                // Check if this is a capture move
+                if (labels[newY, newX].Tag != null && labels[newY, newX].Tag.ToString().Contains("/Cantake"))
+                {
+                    isCapture = true;
+                    // Save the position part of the tag (before the first /)
+                    string[] tagParts = labels[newY, newX].Tag.ToString().Split('/');
+                    if (tagParts.Length > 0)
+                    {
+                        originalTag = tagParts[0];
+                    }
+                }
+
+                // Remove the piece from its current position
                 labels[positionY, positionX].Image = null;
                 labels[positionY, positionX].Tag = positionX + "-" + positionY;
 
@@ -275,61 +255,59 @@ namespace Chess
                 positionX = newX;
                 positionY = newY;
 
-                // Set the image at the new position
+                // Set the image at the new position and update tag
                 labels[positionY, positionX].Image = image;
-                labels[positionY, positionX].Tag = positionX + "-" + positionY + "/" + Colorpiece + "-" + piecename;  // Update the pieces name and color and position
-                
-
-
-
+                labels[positionY, positionX].Tag = positionX + "-" + positionY + "/" + Colorpiece + "-" + piecename;
             }
-            
 
-
-
-            // Cleanup potential move indicators ("/Canmove" tags) after the move
+            // Cleanup potential move indicators ("/Canmove" and "/Cantake" tags) after the move
             foreach (var item in labels)
             {
-                // Handle Canmove tags
-                if (Convert.ToString(item.Tag).Contains("/Canmove"))
+                if (item.Tag != null)
                 {
-                    item.Image = null;
-                    string[] tag = Convert.ToString(item.Tag).Split('/');
-                    if (tag.Length > 1)
+                    string tagStr = Convert.ToString(item.Tag);
+
+                    // Handle Canmove tags
+                    if (tagStr.Contains("/Canmove"))
                     {
-                        if (tag[1] == "Canmove")
+                        item.Image = null;
+                        string[] tag = tagStr.Split('/');
+                        if (tag.Length > 0)
                         {
-                            item.Tag = tag[0]; // Remove "/Canmove" from the tag
+                            item.Tag = tag[0]; // Remove all tags after the first "/"
                         }
                     }
-                }
 
-                // Handle Cantake tags
-                if (Convert.ToString(item.Tag).Contains("/Cantake"))
-                {
-                    string[] tag = Convert.ToString(item.Tag).Split('/');
-                    if (tag.Length > 1)
+                    // Handle Cantake tags
+                    if (tagStr.Contains("/Cantake"))
                     {
-                        if (tag[1] == "Cantake")
+                        // For Cantake, we don't clear the image unless it's a dot
+                        if (item.Image == Properties.Resources.dot)
                         {
-                            item.Tag = tag[0]; // Remove "/Cantake" from the tag
+                            item.Image = null;
+                        }
+
+                        string[] tag = tagStr.Split('/');
+                        if (tag.Length > 0)
+                        {
+                            item.Tag = tag[0]; // Remove all tags after the first "/"
                         }
                     }
                 }
             }
-
-
-
-
-
-
-
-
-
-
         }
+
+
+
+
+
+
+
+
 
 
     }
 
-}
+
+    }
+
