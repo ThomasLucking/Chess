@@ -81,21 +81,15 @@ namespace Chess
             labels[y, x].ImageAlign = ContentAlignment.MiddleCenter;
             labels[y, x].Tag += "/" + Colorpiece + "-" + piecename;
 
-            
-
-
-
         }
 
 
 
         public void GetMovePossibilities(Label[,] labels)
         {
-            // We need to organize pieceMovementPossibilities by direction
-            // This assumes pieceMovementPossibilities contains all possible moves for the piece
             // Group movements by direction (up, down, left, right, diagonals)
             var directions = new Dictionary<string, List<int[]>>();
-            // For a queen/bishop/rook, we need to organize directions properly
+         
             // Example for organizing directions:
             directions["up"] = new List<int[]>();
             directions["down"] = new List<int[]>();
@@ -141,11 +135,31 @@ namespace Chess
             {
                 // Sort the moves from closest to farthest
                 var sortedMoves = direction.OrderBy(m => Math.Abs(m[0]) + Math.Abs(m[1])).ToList();
-                // Process moves in this direction until blocked
+                if (piecename == "Pawn")
+                {
+                    // if(color == "white")
+                    if (sortedMoves.Count > 1)
+                    {
+                        if (PositionY != 6 && color == "white")
+                        {
+                            sortedMoves.RemoveAt(1);
+                            Console.WriteLine("white R");
+                        }
+                        if (PositionY != 1 && color == "black")
+                        {
+                            sortedMoves.RemoveAt(1);
+                            Console.WriteLine("black R");
+                        }
+                    }
+
+                }
+
                 foreach (var move in sortedMoves)
                 {
                     int newPosX = PositionX + move[0];
                     int newPosY = PositionY + move[1];
+
+                    
                     // Check if in bounds
                     if (newPosX >= 0 && newPosX < 8 && newPosY >= 0 && newPosY < 8)
                     {
@@ -177,16 +191,13 @@ namespace Chess
                             // If it's an opponent's piece, mark it as capturable
                             if (!string.IsNullOrEmpty(targetPieceColor) && targetPieceColor != currentPieceColor)
                             {
-                                // Mark as a capturable piece with a visual indicator
-                                // Store the original image to restore it if needed
+                                
+                                // Store the original image t
                                 Image originalImage = labels[newPosY, newPosX].Image;
 
-                                // You could overlay a marker or change the background to indicate a capturable piece
-                                // For now, let's add a tag to mark it as capturable
+                                
+                                // Adds the tag "/Cantake"
                                 labels[newPosY, newPosX].Tag += "/Cantake";
-
-                                // Optionally, add a visual indicator (like a red border or background)
-                                // This would require custom drawing or a modified image
 
                                 Console.WriteLine($"Enemy piece at ({newPosX}, {newPosY}) can be captured.");
                             }
