@@ -35,7 +35,9 @@ namespace Chess
             for (int i = 0; i < 8; i++)
             {
                 piecemovementpossibilities.Add(new int[] {0, -2});           
-                piecemovementpossibilities.Add(new int[] {0, -1});           
+                piecemovementpossibilities.Add(new int[] {0, -1});
+                piecemovementpossibilities.Add(new int[] {1, -1});
+                piecemovementpossibilities.Add(new int[] {-1, -1});
 
                 Chesspieces pawn = new Chesspieces(Properties.Resources.pawn, 6, i, "white", piecemovementpossibilities, "Pawn");
                 pawn.PlacePiece(pawn.PositionX, pawn.PositionY, labels);
@@ -48,6 +50,8 @@ namespace Chess
             {
                 piecemovementpossibilities.Add(new int[] { 0, 2 });
                 piecemovementpossibilities.Add(new int[] { 0, 1 });
+                piecemovementpossibilities.Add(new int[] { 1, 1 }); 
+                piecemovementpossibilities.Add(new int[] { -1, 1 });
 
                 Chesspieces blackpawn = new Chesspieces(Properties.Resources.blackpawn, 1, i, "black", piecemovementpossibilities, "Pawn");
                 blackpawn.PlacePiece(blackpawn.PositionX, blackpawn.PositionY, labels);

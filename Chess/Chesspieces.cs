@@ -87,132 +87,195 @@ namespace Chess
 
         public void GetMovePossibilities(Label[,] labels)
         {
-            // Group movements by direction (up, down, left, right, diagonals)
-            var directions = new Dictionary<string, List<int[]>>();
-         
-            // Example for organizing directions:
-            directions["up"] = new List<int[]>();
-            directions["down"] = new List<int[]>();
-            directions["left"] = new List<int[]>();
-            directions["right"] = new List<int[]>();
-            directions["upLeft"] = new List<int[]>();
-            directions["upRight"] = new List<int[]>();
-            directions["downLeft"] = new List<int[]>();
-            directions["downRight"] = new List<int[]>();
-            // Populate each direction with appropriate movements
-            foreach (var move in pieceMovementPossibilities)
+            // Special handling for Pawns
+            if (piecename == "Pawn")
             {
-                int x = move[0];
-                int y = move[1];
-                // Determine which direction this move belongs to
-                if (x == 0 && y < 0) directions["up"].Add(move);
-                else if (x == 0 && y > 0) directions["down"].Add(move);
-                else if (x < 0 && y == 0) directions["left"].Add(move);
-                else if (x > 0 && y == 0) directions["right"].Add(move);
-                else if (x < 0 && y < 0) directions["upLeft"].Add(move);
-                else if (x > 0 && y < 0) directions["upRight"].Add(move);
-                else if (x < 0 && y > 0) directions["downLeft"].Add(move);
-                else if (x > 0 && y > 0) directions["downRight"].Add(move);
-            }
-
-            // Get the current piece's color
-            string currentPieceColor = "";
-            if (labels[PositionY, PositionX].Tag != null && labels[PositionY, PositionX].Tag.ToString().Contains("/"))
-            {
-                string[] tagParts = labels[PositionY, PositionX].Tag.ToString().Split('/');
-                if (tagParts.Length > 1)
+                // Handle forward movements first
+                foreach (var move in pieceMovementPossibilities)
                 {
-                    string[] pieceParts = tagParts[1].Split('-');
-                    if (pieceParts.Length > 0)
+                    int x = move[0];
+                    int y = move[1];
+
+                    // Forward movement (not diagonal)
+                    if (x == 0)
                     {
-                        currentPieceColor = pieceParts[0];
-                    }
-                }
-            }
+                        int newPosX = PositionX + x;
+                        int newPosY = PositionY + y;
 
-            // Now process each direction separately
-            foreach (var direction in directions.Values)
-            {
-                // Sort the moves from closest to farthest using their Manhattan distance from the origin (0,0).
-                var sortedMoves = direction.OrderBy(m => Math.Abs(m[0]) + Math.Abs(m[1])).ToList();
-                // This code removes the two-square move option for pawns that aren't in their starting position.
-                if (piecename == "Pawn")
-                {
-                    // if(color == "white")
-                    if (sortedMoves.Count > 1)
-                    {
-                        if (PositionY != 6 && color == "white")
+                        // Check if in bounds
+                        if (newPosX >= 0 && newPosX < 8 && newPosY >= 0 && newPosY < 8)
                         {
-                            sortedMoves.RemoveAt(1);
-                            Console.WriteLine("white R");
-                        }
-                        if (PositionY != 1 && color == "black")
-                        {
-                            sortedMoves.RemoveAt(1);
-                            Console.WriteLine("black R");
-                        }
-                    }
-
-                }
-
-                foreach (var move in sortedMoves)
-                {
-                    int newPosX = PositionX + move[0];
-                    int newPosY = PositionY + move[1];
-
-                    
-                    // Check if in bounds
-                    if (newPosX >= 0 && newPosX < 8 && newPosY >= 0 && newPosY < 8)
-                    {
-                        // Check if square is empty
-                        if (labels[newPosY, newPosX].Image == null)
-                        {
-                            // Place a dot
-                            labels[newPosY, newPosX].Image = Properties.Resources.dot;
-                            labels[newPosY, newPosX].Tag += "/Canmove";
-                            Console.WriteLine($"Position ({newPosX}, {newPosY}) is empty.");
-                        }
-                        else if (labels[newPosY, newPosX].Image != Properties.Resources.dot)
-                        {
-                            // Check if it's an opponent's piece
-                            string targetPieceColor = "";
-                            if (labels[newPosY, newPosX].Tag != null && labels[newPosY, newPosX].Tag.ToString().Contains("/"))
+                            // Forward movement requires empty space
+                            if (labels[newPosY, newPosX].Image == null)
                             {
-                                string[] tagParts = labels[newPosY, newPosX].Tag.ToString().Split('/');
-                                if (tagParts.Length > 1)
+                                // Double move only if path is clear
+                                if (Math.Abs(y) == 2)
                                 {
-                                    string[] pieceParts = tagParts[1].Split('-');
-                                    if (pieceParts.Length > 0)
-                                    {   // tagpartst[1] is equal to for example " 4-6/black-knight" then piece parts is "black" which is the targetpiececolor. 
-                                        targetPieceColor = pieceParts[0];
+                                    // For white pawn moving up (y = -2)
+                                    if (color == "white" && PositionY == 6)
+                                    {
+                                        // Check if the square in between is empty
+                                        if (labels[PositionY - 1, PositionX].Image == null)
+                                        {
+                                            labels[newPosY, newPosX].Image = Properties.Resources.dot;
+                                            labels[newPosY, newPosX].Tag += "/Canmove";
+                                        }
+                                    }
+                                    // For black pawn moving down (y = 2)
+                                    else if (color == "black" && PositionY == 1)
+                                    {
+                                        // Check if the square in between is empty
+                                        if (labels[PositionY + 1, PositionX].Image == null)
+                                        {
+                                            labels[newPosY, newPosX].Image = Properties.Resources.dot;
+                                            labels[newPosY, newPosX].Tag += "/Canmove";
+                                        }
                                     }
                                 }
+                                else // Single square move
+                                {
+                                    labels[newPosY, newPosX].Image = Properties.Resources.dot;
+                                    labels[newPosY, newPosX].Tag += "/Canmove";
+                                }
                             }
-
-                            // If it's an opponent's piece, mark it as capturable
-                            if (!string.IsNullOrEmpty(targetPieceColor) && targetPieceColor != currentPieceColor)
-                            {
-                                
-                                // Store the original image t
-                                Image originalImage = labels[newPosY, newPosX].Image;
-
-                                
-                                // Adds the tag "/Cantake"
-                                labels[newPosY, newPosX].Tag += "/Cantake";
-
-                                Console.WriteLine($"Enemy piece at ({newPosX}, {newPosY}) can be captured.");
-                            }
-
-                            // Found a piece in this direction, stop here
-                            Console.WriteLine($"Position ({newPosX}, {newPosY}) has a piece - stopping in this direction.");
-                            break; // Stop processing this direction
                         }
                     }
-                    else
+                    // Diagonal movement for captures
+                    else if ((x == -1 || x == 1) && ((color == "white" && y == -1) || (color == "black" && y == 1)))
                     {
-                        // Out of bounds
-                        Console.WriteLine($"Position ({newPosX}, {newPosY}) is out of bounds.");
-                        break; // Stop processing this direction
+                        int newPosX = PositionX + x;
+                        int newPosY = PositionY + y;
+
+                        // Check if in bounds
+                        if (newPosX >= 0 && newPosX < 8 && newPosY >= 0 && newPosY < 8)
+                        {
+                            // Check if there's a piece to capture
+                            if (labels[newPosY, newPosX].Image != null && labels[newPosY, newPosX].Image != Properties.Resources.dot)
+                            {
+                                // Get target piece color
+                                string targetPieceColor = "";
+                                if (labels[newPosY, newPosX].Tag != null && labels[newPosY, newPosX].Tag.ToString().Contains("/"))
+                                {
+                                    string[] tagParts = labels[newPosY, newPosX].Tag.ToString().Split('/');
+                                    if (tagParts.Length > 1)
+                                    {
+                                        string[] pieceParts = tagParts[1].Split('-');
+                                        if (pieceParts.Length > 0)
+                                        {
+                                            targetPieceColor = pieceParts[0];
+                                        }
+                                    }
+                                }
+
+                                // Only allow diagonal capture of opponent pieces
+                                if (targetPieceColor != color)
+                                {
+                                    labels[newPosY, newPosX].Tag += "/Cantake";
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            else
+            {
+                // Original code for other pieces
+                var directions = new Dictionary<string, List<int[]>>();
+
+                // Example for organizing directions:
+                directions["up"] = new List<int[]>();
+                directions["down"] = new List<int[]>();
+                directions["left"] = new List<int[]>();
+                directions["right"] = new List<int[]>();
+                directions["upLeft"] = new List<int[]>();
+                directions["upRight"] = new List<int[]>();
+                directions["downLeft"] = new List<int[]>();
+                directions["downRight"] = new List<int[]>();
+
+                // Populate each direction with appropriate movements
+                foreach (var move in pieceMovementPossibilities)
+                {
+                    int x = move[0];
+                    int y = move[1];
+                    // Determine which direction this move belongs to
+                    if (x == 0 && y < 0) directions["up"].Add(move);
+                    else if (x == 0 && y > 0) directions["down"].Add(move);
+                    else if (x < 0 && y == 0) directions["left"].Add(move);
+                    else if (x > 0 && y == 0) directions["right"].Add(move);
+                    else if (x < 0 && y < 0) directions["upLeft"].Add(move);
+                    else if (x > 0 && y < 0) directions["upRight"].Add(move);
+                    else if (x < 0 && y > 0) directions["downLeft"].Add(move);
+                    else if (x > 0 && y > 0) directions["downRight"].Add(move);
+                }
+
+                // Get the current piece's color
+                string currentPieceColor = "";
+                if (labels[PositionY, PositionX].Tag != null && labels[PositionY, PositionX].Tag.ToString().Contains("/"))
+                {
+                    string[] tagParts = labels[PositionY, PositionX].Tag.ToString().Split('/');
+                    if (tagParts.Length > 1)
+                    {
+                        string[] pieceParts = tagParts[1].Split('-');
+                        if (pieceParts.Length > 0)
+                        {
+                            currentPieceColor = pieceParts[0];
+                        }
+                    }
+                }
+
+                // Process each direction separately
+                foreach (var direction in directions.Values)
+                {
+                    // Sort the moves from closest to farthest
+                    var sortedMoves = direction.OrderBy(m => Math.Abs(m[0]) + Math.Abs(m[1])).ToList();
+
+                    foreach (var move in sortedMoves)
+                    {
+                        int newPosX = PositionX + move[0];
+                        int newPosY = PositionY + move[1];
+
+                        // Check if in bounds
+                        if (newPosX >= 0 && newPosX < 8 && newPosY >= 0 && newPosY < 8)
+                        {
+                            // Check if square is empty
+                            if (labels[newPosY, newPosX].Image == null)
+                            {
+                                // Place a dot
+                                labels[newPosY, newPosX].Image = Properties.Resources.dot;
+                                labels[newPosY, newPosX].Tag += "/Canmove";
+                            }
+                            else if (labels[newPosY, newPosX].Image != Properties.Resources.dot)
+                            {
+                                // Check if it's an opponent's piece
+                                string targetPieceColor = "";
+                                if (labels[newPosY, newPosX].Tag != null && labels[newPosY, newPosX].Tag.ToString().Contains("/"))
+                                {
+                                    string[] tagParts = labels[newPosY, newPosX].Tag.ToString().Split('/');
+                                    if (tagParts.Length > 1)
+                                    {
+                                        string[] pieceParts = tagParts[1].Split('-');
+                                        if (pieceParts.Length > 0)
+                                        {
+                                            targetPieceColor = pieceParts[0];
+                                        }
+                                    }
+                                }
+
+                                // If it's an opponent's piece, mark it as capturable
+                                if (!string.IsNullOrEmpty(targetPieceColor) && targetPieceColor != currentPieceColor)
+                                {
+                                    labels[newPosY, newPosX].Tag += "/Cantake";
+                                }
+
+                                // Found a piece in this direction, stop here
+                                break; // Stop processing this direction
+                            }
+                        }
+                        else
+                        {
+                            // Out of bounds
+                            break; // Stop processing this direction
+                        }
                     }
                 }
             }
@@ -273,25 +336,42 @@ namespace Chess
                 {
                     string tagStr = Convert.ToString(item.Tag);
 
-                    // Handle Canmove tags
-                    if (tagStr.Contains("/Canmove"))
+                    if (tagStr.Contains("/Canmove") || tagStr.Contains("/Cantake"))
                     {
-                        item.Image = null;
-                        string[] tag = tagStr.Split('/');
-                        if (tag.Length > 0)
-                        {
-                            item.Tag = tag[0]; // Remove all tags after the first "/"
-                        }
-                    }
+                        // Extract the position part and any piece information
+                        string[] mainParts = tagStr.Split('/');
+                        string positionPart = mainParts[0]; // The position part (e.g. "5-3")
 
-                    // Handle Cantake tags
-                    if (tagStr.Contains("/Cantake"))
-                    {
-                        // We don't need to clear the image here as we'll set the new image directly
-                        string[] tag = tagStr.Split('/');
-                        if (tag.Length > 0)
+                        string pieceInfo = "";
+                        // Check if there's piece information after position
+                        if (mainParts.Length > 1 && mainParts[1].Contains("-"))
                         {
-                            item.Tag = tag[0]; // Remove all tags after the first "/"
+                            // Find where the color-piecename part is
+                            for (int i = 1; i < mainParts.Length; i++)
+                            {
+                                if (mainParts[i].Contains("-") &&
+                                    (mainParts[i].StartsWith("white") || mainParts[i].StartsWith("black")))
+                                {
+                                    pieceInfo = mainParts[i];
+                                    break;
+                                }
+                            }
+                        }
+
+                        // If it's a movable square (has the dot), clear the image
+                        if (tagStr.Contains("/Canmove"))
+                        {
+                            item.Image = null;
+                        }
+
+                        // Reset the tag, preserving piece information if it exists
+                        if (!string.IsNullOrEmpty(pieceInfo))
+                        {
+                            item.Tag = positionPart + "/" + pieceInfo;
+                        }
+                        else
+                        {
+                            item.Tag = positionPart;
                         }
                     }
                 }
