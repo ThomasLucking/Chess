@@ -133,8 +133,9 @@ namespace Chess
             // Now process each direction separately
             foreach (var direction in directions.Values)
             {
-                // Sort the moves from closest to farthest
+                // Sort the moves from closest to farthest using their Manhattan distance from the origin (0,0).
                 var sortedMoves = direction.OrderBy(m => Math.Abs(m[0]) + Math.Abs(m[1])).ToList();
+                // This code removes the two-square move option for pawns that aren't in their starting position.
                 if (piecename == "Pawn")
                 {
                     // if(color == "white")
@@ -182,7 +183,7 @@ namespace Chess
                                 {
                                     string[] pieceParts = tagParts[1].Split('-');
                                     if (pieceParts.Length > 0)
-                                    {
+                                    {   // tagpartst[1] is equal to for example " 4-6/black-knight" then piece parts is "black" which is the targetpiececolor. 
                                         targetPieceColor = pieceParts[0];
                                     }
                                 }
@@ -244,18 +245,12 @@ namespace Chess
             if (newX >= 0 && newX < labels.GetLength(1) && newY >= 0 && newY < labels.GetLength(0))
             {
                 bool isCapture = false;
-                string originalTag = "";
 
                 // Check if this is a capture move
                 if (labels[newY, newX].Tag != null && labels[newY, newX].Tag.ToString().Contains("/Cantake"))
                 {
                     isCapture = true;
-                    // Save the position part of the tag (before the first /)
-                    string[] tagParts = labels[newY, newX].Tag.ToString().Split('/');
-                    if (tagParts.Length > 0)
-                    {
-                        originalTag = tagParts[0];
-                    }
+                    Console.WriteLine("Capturing piece at " + newX + "," + newY);
                 }
 
                 // Remove the piece from its current position
@@ -292,12 +287,7 @@ namespace Chess
                     // Handle Cantake tags
                     if (tagStr.Contains("/Cantake"))
                     {
-                        // For Cantake, we don't clear the image unless it's a dot
-                        if (item.Image == Properties.Resources.dot)
-                        {
-                            item.Image = null;
-                        }
-
+                        // We don't need to clear the image here as we'll set the new image directly
                         string[] tag = tagStr.Split('/');
                         if (tag.Length > 0)
                         {

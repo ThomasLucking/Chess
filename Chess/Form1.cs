@@ -305,6 +305,26 @@ namespace Chess
                         int clickedX = Convert.ToInt32(posParts[0]);
                         int clickedY = Convert.ToInt32(posParts[1]);
 
+                        // If this is a capture, remove the captured piece from the pieces list
+                        if (Convert.ToString(clicked_label.Tag).Contains("/Cantake"))
+                        {
+                            // Find and remove the captured piece from the pieces list
+                            Chesspieces capturedPiece = null;
+                            foreach (var piece in pieces)
+                            {
+                                if (piece.PositionX == clickedX && piece.PositionY == clickedY)
+                                {
+                                    capturedPiece = piece;
+                                    break;
+                                }
+                            }
+
+                            if (capturedPiece != null)
+                            {
+                                pieces.Remove(capturedPiece);
+                            }
+                        }
+
                         // Move the piece to the new position
                         chesspieceClicked.MovePiece(Convert.ToString(clickedX), Convert.ToString(clickedY), labels);
                         chesspieceClicked = null;
