@@ -282,23 +282,6 @@ namespace Chess
         }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
         public void MovePiece(string movex, string movey, Label[,] labels)
         {
             // Convert string to integer for movement
@@ -378,17 +361,6 @@ namespace Chess
             }
         }
 
-
-
-
-
-
-
-
-
-
     }
 
-
     }
-
