@@ -332,6 +332,10 @@ namespace Chess
                         // Move the piece to the new position
                         chesspieceClicked.MovePiece(Convert.ToString(clickedX), Convert.ToString(clickedY), labels);
                         chesspieceClicked = null;
+
+                        
+
+                        
                     }
                 }
             }
