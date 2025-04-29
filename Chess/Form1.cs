@@ -8,6 +8,14 @@ using System.Threading;
 
 namespace Chess
 {
+    // The game state enum to track whether the piece is in check, checkmate, or Stalemate. 
+    public enum GameState
+    {
+        Normal,
+        Check,
+        CheckMate,
+        Stalemate
+    }
     public partial class Form1 : Form
     {
         Chessboard Mychessboard = new Chessboard(); // Assuming this is the class that manages chess pieces.
@@ -17,10 +25,19 @@ namespace Chess
         public System.Windows.Forms.Label[,] labels;
 
         Chesspieces chesspieceClicked = null;
+        // Properties to track what the playerturn is currently and to track the gamestate and If the king can move to resolve the check.
+        private string currentPlayerTurn = "White";
+        private GameState gamestate = GameState.Normal;
+        private bool IsMovingToResolveCheck = false;
+       
+        private Chesspieces whiteKing;
+        private Chesspieces blackKing;
 
 
         public Form1()
-        {  // Initialize the 2D array of labels
+        {
+
+            // Initialize the 2D array of labels
             InitializeComponent();
             labels = Mychessboard.InitializeChessboard();
             for (int row = 0; row < 8; row++)
@@ -242,6 +259,22 @@ namespace Chess
             pieces.Add(blackbishop2);
             pieces.Add(blackrook);
             pieces.Add(blackrook2);
+
+
+        }
+        private void InitializeKingReferences()
+        {
+            foreach(var piece in pieces)
+            {
+                if (piece.piecename == "King" && piece.color == "white")
+                {
+                    whiteKing = piece;
+                }
+                else if (piece.piecename == "King" && piece.color == "black")
+                {
+                    blackKing = piece;
+                }
+            }
         }
 
         private void Form1_Load(object sender, EventArgs e)
@@ -308,6 +341,9 @@ namespace Chess
                     {
                         int clickedX = Convert.ToInt32(posParts[0]);
                         int clickedY = Convert.ToInt32(posParts[1]);
+
+                        int originalX = chesspieceClicked.PositionX;
+                        int originalY = chesspieceClicked.PositionY;
 
                         // If this is a capture, remove the captured piece from the pieces list
                         if (Convert.ToString(clicked_label.Tag).Contains("/Cantake"))
