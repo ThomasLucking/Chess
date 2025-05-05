@@ -1,10 +1,16 @@
-﻿using System;
+﻿// Auteur: Thomas Lucking
+// Creation: 10/03/2025
+// Date de Modification: 2/5/2025 
+// Description : La déclaration de l'échiquier,les position de les pièces placées à l'intérieur de l'échiquier et du système d'échec et mat.
+using System;
 using System.Drawing;
 using System.Drawing.Printing;
 using System.Reflection.Emit;
 using System.Windows.Forms;
 using System.Collections.Generic;
 using System.Threading;
+using System.Net.NetworkInformation;
+using System.Linq;
 
 namespace Chess
 {
@@ -18,7 +24,7 @@ namespace Chess
     }
     public partial class Form1 : Form
     {
-        Chessboard Mychessboard = new Chessboard(); // Assuming this is the class that manages chess pieces.
+        Chessboard Mychessboard = new Chessboard(); // Declaration of the chessboard class.
         List<Chesspieces> pieces = new List<Chesspieces>();
         List<int[]> piecemovementpossibilities = new List<int[]>();
 
@@ -48,6 +54,7 @@ namespace Chess
                     labels[row, col].Click += new EventHandler(ChessCase_Click);
                 }
             }
+
             #region Pawn   
             for (int i = 0; i < 8; i++)
             {
@@ -259,7 +266,14 @@ namespace Chess
             pieces.Add(blackbishop2);
             pieces.Add(blackrook);
             pieces.Add(blackrook2);
+            // Initialize the king refenrence
+            InitializeKingReferences();
 
+            // Set the initial turn
+            currentPlayerTurn = "white";
+
+            // Set the initial game state
+            gamestate = GameState.Normal;
 
         }
         private void InitializeKingReferences()
@@ -371,7 +385,7 @@ namespace Chess
                         // Move the piece to the new position
                         chesspieceClicked.MovePiece(Convert.ToString(clickedX), Convert.ToString(clickedY), labels);
                         currentPlayerTurn = (currentPlayerTurn == "white") ? "black" : "white";
-                        // CheckForCheckAndCheckmate();
+                        CheckForCheckAndCheckmate();
                         chesspieceClicked = null;
 
                         
@@ -465,10 +479,120 @@ namespace Chess
             Chesspieces king = (kingColor == "white") ? whiteKing : blackKing;
             int KingX = king.PositionX;
             int KingY = king.PositionY;
+            // check if an opponent piece can attack the king's position
+            string oppenentColor = (kingColor == "white") ? "black" : "white";
 
+            foreach(var piece in pieces)
+            {
+                if (piece.color == oppenentColor)
+                {
+                    // Save original position to restore later
+                    int originalX = piece.PositionX;
+                    int originalY = piece.PositionY;
+
+                    //clear any move indicators
+                    ClearMoveIndicators();
+
+                    // get the movement Possibilities of the opponent piece.
+                    piece.GetMovePossibilities(labels);
+                    bool kingInCheck = false;
+
+                    if (labels[KingY, KingX].Tag != null &&
+                       (labels[KingY, KingX].Tag.ToString().Contains("/Canmove") ||
+                        labels[KingY, KingX].Tag.ToString().Contains("/Cantake")))
+                    {
+                        kingInCheck = true;
+                    }
+
+                    ClearMoveIndicators();
+
+                    if (kingInCheck)
+                    {
+                        return true;
+                    }
+                }
+            }
+
+            return false;
         }
 
-        
+
+        private void CheckForCheckAndCheckmate()
+        {
+            // Determine which king t check (the one whose turn it is now)
+            string kingColorToCheck = currentPlayerTurn;
+
+            //Check if the king is in check.
+            bool isInCheck = IsKingInCheck(kingColorToCheck);
+
+            if (isInCheck)
+            {
+                // Check the Game state
+                gamestate = GameState.Check;
+
+                // Check if it's checkmate by seeing if any move can get out of the check
+                if (IsCheckmate(kingColorToCheck))
+                {
+                    gamestate = GameState.CheckMate;
+                    MessageBox.Show($"Checkmate! {(kingColorToCheck == "white" ? "Black": "White")} wins!");
+                    // To do Restart the form when checkmate
+                }
+                else
+                {
+                    MessageBox.Show($"{char.ToUpper(kingColorToCheck[0]) + kingColorToCheck.Substring(1)} is in check!");
+                }
+            }
+            else
+            {
+                gamestate = GameState.Normal;
+            }
+
+        }
+        private bool IsCheckmate(string kingColor)
+        {
+            // Try all possible moves for all pieces of the given color
+            foreach(var piece in pieces.Where(p => p.color == kingColor))
+            {
+                // Save the original position
+
+                int originalX = piece.PositionX;
+                int originalY = piece.PositionY;
+
+                // Clear any previous move indicators
+                ClearMoveIndicators();
+
+                // Get all possible moves for this piece
+                piece.GetMovePossibilities(labels);
+
+                // Filter moves that would still leave the king in check
+                FilterMovesLeadingToCheck(piece);
+
+                // Check if there are any valid moves left 
+                for(int y = 0; y < 8; y++)
+                {
+                    for(int x = 0; x < 8; x++)
+                    {
+                        if (labels[y, x].Tag != null &&
+                           (labels[y, x].Tag.ToString().Contains("/Canmove") ||
+                            labels[y, x].Tag.ToString().Contains("/Cantake")))
+                        {
+                            // There's at least one valid move, so it's not checkmate
+                            ClearMoveIndicators();
+                            return false;
+                        }
+
+                    }
+
+                }
+                // Clean up 
+                ClearMoveIndicators();
+
+            }
+            // if we've checked all piece and found no valid moves, it's checkmate.
+            return true;
+        }
+
+
 
         // Helper method to clear all move indicators
         private void ClearMoveIndicators()
