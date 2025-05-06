@@ -301,9 +301,6 @@ namespace Chess
             System.Windows.Forms.Label clicked_label = sender as System.Windows.Forms.Label;
             string coordinates = Convert.ToString(clicked_label.Tag);
 
-            // For debugging
-            MessageBox.Show(Convert.ToString(clicked_label.Tag));
-
             // If there's already a piece selected and we click somewhere that's not a valid move
             if (chesspieceClicked != null &&
                 !Convert.ToString(clicked_label.Tag).Contains("/Canmove") &&
@@ -330,11 +327,50 @@ namespace Chess
                             int clickedX = Convert.ToInt32(posParts[0]);
                             int clickedY = Convert.ToInt32(posParts[1]);
 
-                            // If this is the piece at the clicked position and checks if it's the players turn
-                            if (item.PositionX == clickedX && item.PositionY == clickedY && item.color == currentPlayerTurn)
+                            // If this is the piece at the clicked position and checks if it's the player's turn
+                            if (item.PositionX == clickedX && item.PositionY == clickedY && item.color.ToLower() == currentPlayerTurn.ToLower())
                             {
-                                item.GetMovePossibilities(labels);
-                                chesspieceClicked = item;
+                                // If in check, only allow moves that resolve the check
+                                if (gamestate == GameState.Check && item.color.ToLower() == currentPlayerTurn.ToLower())
+                                {
+                                    IsMovingToResolveCheck = true;
+                                    item.GetMovePossibilities(labels);
+                                    FilterMovesLeadingToCheck(item);
+
+                                    // Check if there are any valid moves after filtering
+                                    bool hasValidMoves = false;
+                                    for (int y = 0; y < 8; y++)
+                                    {
+                                        for (int x = 0; x < 8; x++)
+                                        {
+                                            if (labels[y, x].Tag != null &&
+                                               (labels[y, x].Tag.ToString().Contains("/Canmove") ||
+                                                labels[y, x].Tag.ToString().Contains("/Cantake")))
+                                            {
+                                                hasValidMoves = true;
+                                                break;
+                                            }
+                                        }
+                                        if (hasValidMoves) break;
+                                    }
+
+                                    if (hasValidMoves)
+                                    {
+                                        chesspieceClicked = item;
+                                    }
+                                    else
+                                    {
+                                        // No valid moves for this piece, clear indicators
+                                        ClearMoveIndicators();
+                                    }
+                                }
+                                else
+                                {
+                                    // Normal move selection
+                                    item.GetMovePossibilities(labels);
+                                    FilterMovesLeadingToCheck(item);
+                                    chesspieceClicked = item;
+                                }
                                 break;
                             }
                         }
@@ -355,12 +391,6 @@ namespace Chess
                     {
                         int clickedX = Convert.ToInt32(posParts[0]);
                         int clickedY = Convert.ToInt32(posParts[1]);
-                        // Store the original position.
-
-                        int originalX = chesspieceClicked.PositionX;
-                        int originalY = chesspieceClicked.PositionY;
-
-                       
 
                         // If this is a capture, remove the captured piece from the pieces list
                         if (Convert.ToString(clicked_label.Tag).Contains("/Cantake"))
@@ -384,13 +414,18 @@ namespace Chess
 
                         // Move the piece to the new position
                         chesspieceClicked.MovePiece(Convert.ToString(clickedX), Convert.ToString(clickedY), labels);
-                        currentPlayerTurn = (currentPlayerTurn == "white") ? "black" : "white";
+
+                        // Reset move resolution flag
+                        IsMovingToResolveCheck = false;
+
+                        // Switch turns
+                        currentPlayerTurn = (currentPlayerTurn.ToLower() == "white") ? "black" : "white";
+
+                        // Check for check/checkmate in the new position
                         CheckForCheckAndCheckmate();
+
+                        // Clear selection
                         chesspieceClicked = null;
-
-                        
-
-                        
                     }
                 }
             }
@@ -401,7 +436,6 @@ namespace Chess
             List<Tuple<int, int>> invalidMoves = new List<Tuple<int, int>>();
 
             // iterate through all the squares with the "/CanMove" or "Cantake" tags
-
             for (int y = 0; y < 8; y++)
             {
                 for (int x = 0; x < 8; x++)
@@ -421,27 +455,34 @@ namespace Chess
                             if (p.PositionX == x && p.PositionY == y)
                             {
                                 capturedPiece = p;
-                                pieces.Remove(capturedPiece);
                                 break;
                             }
                         }
+
+                        // Temporarily remove the captured piece if any
+                        if (capturedPiece != null)
+                        {
+                            pieces.Remove(capturedPiece);
+                        }
+
                         // Temporarily make the move
                         piece.PositionX = x;
                         piece.PositionY = y;
 
-
                         // Check if this move would put our king in check.
-                        bool wouldbeInCheck = IsKingInCheck(piece.color);
+                        bool wouldBeInCheck = IsKingInCheck(piece.color);
 
-                        // if it would put is in check, add to invalid moves
-                        if (wouldbeInCheck)
+                        // if it would put us in check, add to invalid moves
+                        if (wouldBeInCheck)
                         {
                             invalidMoves.Add(new Tuple<int, int>(x, y));
                         }
 
+                        // Restore the original position
                         piece.PositionX = originalX;
                         piece.PositionY = originalY;
 
+                        // Restore the captured piece if any
                         if (capturedPiece != null)
                         {
                             pieces.Add(capturedPiece);
@@ -450,71 +491,87 @@ namespace Chess
                 }
             }
 
-            foreach(var invalidMove in invalidMoves)
+            // Remove the invalid moves
+            foreach (var invalidMove in invalidMoves)
             {
                 int x = invalidMove.Item1;
                 int y = invalidMove.Item2;
 
                 if (labels[y, x].Tag != null)
                 {
-                    string tagstr = labels[y, x].Tag.ToString();
+                    string tagStr = labels[y, x].Tag.ToString();
 
-                    if (tagstr.Contains("/Canmove"))
+                    if (tagStr.Contains("/Canmove"))
                     {
                         labels[y, x].Image = null;
-                        labels[y, x].Image = null;
-
-                    }else if (tagstr.Contains("/Cantake"))
+                        // Keep only the position part of the tag
+                        labels[y, x].Tag = tagStr.Split('/')[0];
+                    }
+                    else if (tagStr.Contains("/Cantake"))
                     {
-                        // keep the piece image but remove the tag
-                        labels[y, x].Tag = tagstr.Split('/')[0];
+                        // Keep the piece image but remove the Cantake tag
+                        string[] parts = tagStr.Split('/');
+                        if (parts.Length >= 3)
+                        {
+                            // Keep position and piece info
+                            labels[y, x].Tag = parts[0] + "/" + parts[2];
+                        }
+                        else if (parts.Length > 1)
+                        {
+                            labels[y, x].Tag = parts[0];
+                        }
                     }
                 }
-
             }
         }
         private bool IsKingInCheck(string kingColor)
         {
             // Find the king's position
             Chesspieces king = (kingColor == "white") ? whiteKing : blackKing;
-            int KingX = king.PositionX;
-            int KingY = king.PositionY;
-            // check if an opponent piece can attack the king's position
-            string oppenentColor = (kingColor == "white") ? "black" : "white";
 
-            foreach(var piece in pieces)
+            if (king == null)
             {
-                if (piece.color == oppenentColor)
+                InitializeKingReferences(); // Make sure kings are referenced
+                king = (kingColor == "white") ? whiteKing : blackKing;
+
+                if (king == null)
                 {
-                    // Save original position to restore later
-                    int originalX = piece.PositionX;
-                    int originalY = piece.PositionY;
+                    MessageBox.Show("Error: King reference is null!");
+                    return false;
+                }
+            }
 
-                    //clear any move indicators
+            int kingX = king.PositionX;
+            int kingY = king.PositionY;
+
+            // Check if an opponent piece can attack the king's position
+            string opponentColor = (kingColor == "white") ? "black" : "white";
+
+            foreach (var piece in pieces)
+            {
+                if (piece.color == opponentColor)
+                {
+                    // Clear any existing move indicators
                     ClearMoveIndicators();
 
-                    // get the movement Possibilities of the opponent piece.
+                    // Get the movement possibilities of the opponent piece
                     piece.GetMovePossibilities(labels);
-                    bool kingInCheck = false;
 
-                    if (labels[KingY, KingX].Tag != null &&
-                       (labels[KingY, KingX].Tag.ToString().Contains("/Canmove") ||
-                        labels[KingY, KingX].Tag.ToString().Contains("/Cantake")))
+                    // Check if the king's position is marked as capturable
+                    if (labels[kingY, kingX].Tag != null &&
+                        labels[kingY, kingX].Tag.ToString().Contains("/Cantake"))
                     {
-                        kingInCheck = true;
-                    }
-
-                    ClearMoveIndicators();
-
-                    if (kingInCheck)
-                    {
+                        ClearMoveIndicators();
                         return true;
                     }
                 }
             }
 
+            // Clear any move indicators that were added
+            ClearMoveIndicators();
             return false;
         }
+
 
 
         private void CheckForCheckAndCheckmate()
@@ -551,13 +608,8 @@ namespace Chess
         private bool IsCheckmate(string kingColor)
         {
             // Try all possible moves for all pieces of the given color
-            foreach(var piece in pieces.Where(p => p.color == kingColor))
+            foreach (var piece in pieces.Where(p => p.color == kingColor))
             {
-                // Save the original position
-
-                int originalX = piece.PositionX;
-                int originalY = piece.PositionY;
-
                 // Clear any previous move indicators
                 ClearMoveIndicators();
 
@@ -568,9 +620,10 @@ namespace Chess
                 FilterMovesLeadingToCheck(piece);
 
                 // Check if there are any valid moves left 
-                for(int y = 0; y < 8; y++)
+                bool hasValidMove = false;
+                for (int y = 0; y < 8; y++)
                 {
-                    for(int x = 0; x < 8; x++)
+                    for (int x = 0; x < 8; x++)
                     {
                         if (labels[y, x].Tag != null &&
                            (labels[y, x].Tag.ToString().Contains("/Canmove") ||
@@ -580,15 +633,14 @@ namespace Chess
                             ClearMoveIndicators();
                             return false;
                         }
-
                     }
-
                 }
+
                 // Clean up 
                 ClearMoveIndicators();
-
             }
-            // if we've checked all piece and found no valid moves, it's checkmate.
+
+            // If we've checked all pieces and found no valid moves, it's checkmate
             return true;
         }
 
@@ -615,13 +667,21 @@ namespace Chess
                     }
 
                     // Handle Cantake tags
-                    if (tagStr.Contains("/Cantake"))
+                    else if (tagStr.Contains("/Cantake"))
                     {
-                        // Don't clear the image for capturable pieces
+                        // Parse the tag to keep the piece information
                         string[] tag = tagStr.Split('/');
-                        if (tag.Length > 0)
+
+                        // Check if there's any piece information (color/type) to preserve
+                        if (tag.Length >= 3)
                         {
-                            item.Tag = tag[0]; // Remove all tags after the first "/"
+                            // Keep position and the piece info (color/type)
+                            item.Tag = tag[0] + "/" + tag[2];
+                        }
+                        else if (tag.Length > 0)
+                        {
+                            // If there's no piece info, just keep the position
+                            item.Tag = tag[0];
                         }
                     }
                 }
