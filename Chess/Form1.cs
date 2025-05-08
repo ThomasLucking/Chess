@@ -2,6 +2,8 @@
 // Creation: 10/03/2025
 // Date de Modification: 2/5/2025 
 // Description : La déclaration de l'échiquier,les position de les pièces placées à l'intérieur de l'échiquier et du système d'échec et mat.
+
+
 using System;
 using System.Drawing;
 using System.Drawing.Printing;
@@ -14,7 +16,7 @@ using System.Linq;
 
 namespace Chess
 {
-    // The game state enum to track whether the piece is in check, checkmate, or Stalemate. 
+    // The game state enum to track whether the piece is in check, checkmate.
     public enum GameState
     {
         Normal,
@@ -301,6 +303,9 @@ namespace Chess
             System.Windows.Forms.Label clicked_label = sender as System.Windows.Forms.Label;
             string coordinates = Convert.ToString(clicked_label.Tag);
 
+            // For debugging
+            MessageBox.Show(Convert.ToString(clicked_label.Tag));
+
             // If there's already a piece selected and we click somewhere that's not a valid move
             if (chesspieceClicked != null &&
                 !Convert.ToString(clicked_label.Tag).Contains("/Canmove") &&
@@ -327,50 +332,11 @@ namespace Chess
                             int clickedX = Convert.ToInt32(posParts[0]);
                             int clickedY = Convert.ToInt32(posParts[1]);
 
-                            // If this is the piece at the clicked position and checks if it's the player's turn
-                            if (item.PositionX == clickedX && item.PositionY == clickedY && item.color.ToLower() == currentPlayerTurn.ToLower())
+                            // If this is the piece at the clicked position and checks if it's the players turn
+                            if (item.PositionX == clickedX && item.PositionY == clickedY && item.color == currentPlayerTurn)
                             {
-                                // If in check, only allow moves that resolve the check
-                                if (gamestate == GameState.Check && item.color.ToLower() == currentPlayerTurn.ToLower())
-                                {
-                                    IsMovingToResolveCheck = true;
-                                    item.GetMovePossibilities(labels);
-                                    FilterMovesLeadingToCheck(item);
-
-                                    // Check if there are any valid moves after filtering
-                                    bool hasValidMoves = false;
-                                    for (int y = 0; y < 8; y++)
-                                    {
-                                        for (int x = 0; x < 8; x++)
-                                        {
-                                            if (labels[y, x].Tag != null &&
-                                               (labels[y, x].Tag.ToString().Contains("/Canmove") ||
-                                                labels[y, x].Tag.ToString().Contains("/Cantake")))
-                                            {
-                                                hasValidMoves = true;
-                                                break;
-                                            }
-                                        }
-                                        if (hasValidMoves) break;
-                                    }
-
-                                    if (hasValidMoves)
-                                    {
-                                        chesspieceClicked = item;
-                                    }
-                                    else
-                                    {
-                                        // No valid moves for this piece, clear indicators
-                                        ClearMoveIndicators();
-                                    }
-                                }
-                                else
-                                {
-                                    // Normal move selection
-                                    item.GetMovePossibilities(labels);
-                                    FilterMovesLeadingToCheck(item);
-                                    chesspieceClicked = item;
-                                }
+                                item.GetMovePossibilities(labels);
+                                chesspieceClicked = item;
                                 break;
                             }
                         }
@@ -391,6 +357,12 @@ namespace Chess
                     {
                         int clickedX = Convert.ToInt32(posParts[0]);
                         int clickedY = Convert.ToInt32(posParts[1]);
+                        // Store the original position.
+
+                        int originalX = chesspieceClicked.PositionX;
+                        int originalY = chesspieceClicked.PositionY;
+
+                       
 
                         // If this is a capture, remove the captured piece from the pieces list
                         if (Convert.ToString(clicked_label.Tag).Contains("/Cantake"))
@@ -414,18 +386,13 @@ namespace Chess
 
                         // Move the piece to the new position
                         chesspieceClicked.MovePiece(Convert.ToString(clickedX), Convert.ToString(clickedY), labels);
-
-                        // Reset move resolution flag
-                        IsMovingToResolveCheck = false;
-
-                        // Switch turns
-                        currentPlayerTurn = (currentPlayerTurn.ToLower() == "white") ? "black" : "white";
-
-                        // Check for check/checkmate in the new position
+                        currentPlayerTurn = (currentPlayerTurn == "white") ? "black" : "white";
                         CheckForCheckAndCheckmate();
-
-                        // Clear selection
                         chesspieceClicked = null;
+
+                        
+
+                        
                     }
                 }
             }
@@ -436,6 +403,7 @@ namespace Chess
             List<Tuple<int, int>> invalidMoves = new List<Tuple<int, int>>();
 
             // iterate through all the squares with the "/CanMove" or "Cantake" tags
+
             for (int y = 0; y < 8; y++)
             {
                 for (int x = 0; x < 8; x++)
@@ -455,34 +423,29 @@ namespace Chess
                             if (p.PositionX == x && p.PositionY == y)
                             {
                                 capturedPiece = p;
+                                pieces.Remove(capturedPiece);
                                 break;
                             }
                         }
-
-                        // Temporarily remove the captured piece if any
-                        if (capturedPiece != null)
-                        {
-                            pieces.Remove(capturedPiece);
-                        }
-
                         // Temporarily make the move
                         piece.PositionX = x;
                         piece.PositionY = y;
 
-                        // Check if this move would put our king in check.
-                        bool wouldBeInCheck = IsKingInCheck(piece.color);
 
-                        // if it would put us in check, add to invalid moves
-                        if (wouldBeInCheck)
+                        // Check if this move would put our king in check.
+                        bool wouldbeInCheck = IsKingInCheck(piece.color);
+
+                        // The message box said false
+                        // MessageBox.Show(Convert.ToString(IsKingInCheck(piece.color)));
+                        // if it would put is in check, add to invalid moves
+                        if (wouldbeInCheck)
                         {
                             invalidMoves.Add(new Tuple<int, int>(x, y));
                         }
 
-                        // Restore the original position
                         piece.PositionX = originalX;
                         piece.PositionY = originalY;
 
-                        // Restore the captured piece if any
                         if (capturedPiece != null)
                         {
                             pieces.Add(capturedPiece);
@@ -491,87 +454,72 @@ namespace Chess
                 }
             }
 
-            // Remove the invalid moves
-            foreach (var invalidMove in invalidMoves)
+            foreach(var invalidMove in invalidMoves)
             {
                 int x = invalidMove.Item1;
                 int y = invalidMove.Item2;
 
                 if (labels[y, x].Tag != null)
                 {
-                    string tagStr = labels[y, x].Tag.ToString();
+                    string tagstr = labels[y, x].Tag.ToString();
 
-                    if (tagStr.Contains("/Canmove"))
+                    if (tagstr.Contains("/Canmove"))
                     {
                         labels[y, x].Image = null;
-                        // Keep only the position part of the tag
-                        labels[y, x].Tag = tagStr.Split('/')[0];
-                    }
-                    else if (tagStr.Contains("/Cantake"))
+                        labels[y, x].Image = null;
+
+                    }else if (tagstr.Contains("/Cantake"))
                     {
-                        // Keep the piece image but remove the Cantake tag
-                        string[] parts = tagStr.Split('/');
-                        if (parts.Length >= 3)
-                        {
-                            // Keep position and piece info
-                            labels[y, x].Tag = parts[0] + "/" + parts[2];
-                        }
-                        else if (parts.Length > 1)
-                        {
-                            labels[y, x].Tag = parts[0];
-                        }
+                        // keep the piece image but remove the tag
+                        labels[y, x].Tag = tagstr.Split('/')[0];
                     }
                 }
+
             }
         }
         private bool IsKingInCheck(string kingColor)
         {
             // Find the king's position
             Chesspieces king = (kingColor == "white") ? whiteKing : blackKing;
+            int KingX = king.PositionX;
+            int KingY = king.PositionY;
+            // check if an opponent piece can attack the king's position
+            string oppenentColor = (kingColor == "white") ? "black" : "white";
 
-            if (king == null)
+            foreach(var piece in pieces)
             {
-                InitializeKingReferences(); // Make sure kings are referenced
-                king = (kingColor == "white") ? whiteKing : blackKing;
-
-                if (king == null)
+                if (piece.color == oppenentColor)
                 {
-                    MessageBox.Show("Error: King reference is null!");
-                    return false;
-                }
-            }
+                    // Save original position to restore later
+                    int originalX = piece.PositionX;
+                    int originalY = piece.PositionY;
 
-            int kingX = king.PositionX;
-            int kingY = king.PositionY;
-
-            // Check if an opponent piece can attack the king's position
-            string opponentColor = (kingColor == "white") ? "black" : "white";
-
-            foreach (var piece in pieces)
-            {
-                if (piece.color == opponentColor)
-                {
-                    // Clear any existing move indicators
+                    //clear any move indicators
                     ClearMoveIndicators();
 
-                    // Get the movement possibilities of the opponent piece
+                    // get the movement Possibilities of the opponent piece.
                     piece.GetMovePossibilities(labels);
 
-                    // Check if the king's position is marked as capturable
-                    if (labels[kingY, kingX].Tag != null &&
-                        labels[kingY, kingX].Tag.ToString().Contains("/Cantake"))
+                    bool kingInCheck = false;
+
+                    if (labels[KingY, KingX].Tag != null &&
+                       (labels[KingY, KingX].Tag.ToString().Contains("/Canmove") ||
+                        labels[KingY, KingX].Tag.ToString().Contains("/Cantake")))
                     {
-                        ClearMoveIndicators();
+                        kingInCheck = true;
+                    }
+
+                    ClearMoveIndicators();
+
+                    if (kingInCheck)
+                    {
                         return true;
                     }
                 }
             }
 
-            // Clear any move indicators that were added
-            ClearMoveIndicators();
             return false;
         }
-
 
 
         private void CheckForCheckAndCheckmate()
@@ -581,7 +529,7 @@ namespace Chess
 
             //Check if the king is in check.
             bool isInCheck = IsKingInCheck(kingColorToCheck);
-
+            MessageBox.Show(Convert.ToString(IsKingInCheck(kingColorToCheck)));
             if (isInCheck)
             {
                 // Check the Game state
@@ -593,6 +541,8 @@ namespace Chess
                     gamestate = GameState.CheckMate;
                     MessageBox.Show($"Checkmate! {(kingColorToCheck == "white" ? "Black": "White")} wins!");
                     // To do Restart the form when checkmate
+                    ResetGame();
+
                 }
                 else
                 {
@@ -607,9 +557,17 @@ namespace Chess
         }
         private bool IsCheckmate(string kingColor)
         {
+            var piecesToCheck = pieces.Where(p => p.color == kingColor).ToList();
+
+            MessageBox.Show(Convert.ToString(piecesToCheck));
             // Try all possible moves for all pieces of the given color
-            foreach (var piece in pieces.Where(p => p.color == kingColor))
+            foreach (var piece in piecesToCheck)
             {
+                // Save the original position
+
+                int originalX = piece.PositionX;
+                int originalY = piece.PositionY;
+
                 // Clear any previous move indicators
                 ClearMoveIndicators();
 
@@ -618,12 +576,12 @@ namespace Chess
 
                 // Filter moves that would still leave the king in check
                 FilterMovesLeadingToCheck(piece);
+                
 
                 // Check if there are any valid moves left 
-                bool hasValidMove = false;
-                for (int y = 0; y < 8; y++)
+                for(int y = 0; y < 8; y++)
                 {
-                    for (int x = 0; x < 8; x++)
+                    for(int x = 0; x < 8; x++)
                     {
                         if (labels[y, x].Tag != null &&
                            (labels[y, x].Tag.ToString().Contains("/Canmove") ||
@@ -633,14 +591,15 @@ namespace Chess
                             ClearMoveIndicators();
                             return false;
                         }
-                    }
-                }
 
+                    }
+
+                }
                 // Clean up 
                 ClearMoveIndicators();
-            }
 
-            // If we've checked all pieces and found no valid moves, it's checkmate
+            }
+            // if we've checked all piece and found no valid moves, it's checkmate.
             return true;
         }
 
@@ -659,33 +618,31 @@ namespace Chess
                     if (tagStr.Contains("/Canmove"))
                     {
                         item.Image = null;
-                        string[] tag = tagStr.Split('/');
-                        if (tag.Length > 0)
-                        {
-                            item.Tag = tag[0]; // Remove all tags after the first "/"
-                        }
+                        string[] parts = tagStr.Split('/');
+                        item.Tag = parts[0]; // Keep only the position
                     }
-
-                    // Handle Cantake tags
+                    // Handle Cantake tags - now we preserve the piece info
                     else if (tagStr.Contains("/Cantake"))
                     {
-                        // Parse the tag to keep the piece information
-                        string[] tag = tagStr.Split('/');
-
-                        // Check if there's any piece information (color/type) to preserve
-                        if (tag.Length >= 3)
+                        string[] parts = tagStr.Split('/');
+                        // Reconstruct the tag with position and piece info if available
+                        if (parts.Length >= 3)
                         {
-                            // Keep position and the piece info (color/type)
-                            item.Tag = tag[0] + "/" + tag[2];
+                            item.Tag = $"{parts[0]}/{parts[2]}"; // Keep position and "color-piecename"
                         }
-                        else if (tag.Length > 0)
+                        else
                         {
-                            // If there's no piece info, just keep the position
-                            item.Tag = tag[0];
+                            item.Tag = parts[0]; // If no piece info, keep only the position
                         }
                     }
                 }
             }
+        }
+
+        // method to restart the game once someone get checkmated
+        private void ResetGame()
+        {
+            Application.Restart();
         }
 
     }
