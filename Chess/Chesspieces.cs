@@ -1,4 +1,9 @@
-﻿using System;
+﻿// Auteur: Thomas Lucking
+// Creation: 10/03/2025
+// Date de Modification: 2/5/2025 
+// Description: Description : Toutes les fonctionnalités nécessaires au jeu d'échecs comme les possibilités de mouvement, la méthode de capture des pièces. La méthode de déplacement. 
+
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
@@ -74,12 +79,6 @@ namespace Chess
             }
         }
 
-        /// <summary>
-        /// Places the piece on the chessboard label.
-        /// </summary>
-        /// <param name="x">The x-coordinate (column) on the board.</param>
-        /// <param name="y">The y-coordinate (row) on the board.</param>
-        /// <param name="labels">The 2D array of labels representing the chessboard.</param>
         public void PlacePiece(int x, int y, Label[,] labels)
         {
 
@@ -90,15 +89,10 @@ namespace Chess
 
         }
 
-        /// <summary>
-        /// Gets the possible moves for the piece, and marks them on the board.
-        /// </summary>
-        /// <param name="labels">The 2D array of labels representing the chessboard.</param>
+
+
         public void GetMovePossibilities(Label[,] labels)
         {
-            // First, clear any existing move indicators
-            ClearMoveIndicators(labels);
-
             // Special handling for Pawns
             if (piecename == "Pawn")
             {
@@ -294,12 +288,6 @@ namespace Chess
         }
 
 
-        /// <summary>
-        /// Moves the piece to a new location.
-        /// </summary>
-        /// <param name="movex">The new x-coordinate (column).</param>
-        /// <param name="movey">The new y-coordinate (row).</param>
-        /// <param name="labels">The 2D array of labels representing the chessboard.</param>
         public void MovePiece(string movex, string movey, Label[,] labels)
         {
             // Convert string to integer for movement
@@ -379,28 +367,8 @@ namespace Chess
             }
         }
 
-        /// <summary>
-        /// Clears the move indicators (dots and tags) from the board.
-        /// </summary>
-        /// <param name="labels">The 2D array of labels representing the chessboard.</param>
-        private void ClearMoveIndicators(Label[,] labels)
-        {
-            foreach (var label in labels)
-            {
-                if (label.Image == Properties.Resources.dot)
-                {
-                    label.Image = null; // Clear the image (remove the dot)
-                }
-                if (label.Tag != null)
-                {
-                    string tag = label.Tag.ToString();
-                    if (tag.Contains("/Canmove") || tag.Contains("/Cantake"))
-                    {
-                        string[] parts = tag.Split('/').Where(s => !s.Contains("Canmove") && !s.Contains("Cantake")).ToArray();
-                        label.Tag = string.Join("/", parts);
-                    }
-                }
-            }
-        }
+    } 
+
     }
-}
+
+

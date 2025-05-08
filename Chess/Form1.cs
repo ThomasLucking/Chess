@@ -361,8 +361,8 @@ namespace Chess
 
                         int originalX = chesspieceClicked.PositionX;
                         int originalY = chesspieceClicked.PositionY;
+                        //working in progress
 
-                       
 
                         // If this is a capture, remove the captured piece from the pieces list
                         if (Convert.ToString(clicked_label.Tag).Contains("/Cantake"))
@@ -499,7 +499,6 @@ namespace Chess
 
                     // get the movement Possibilities of the opponent piece.
                     piece.GetMovePossibilities(labels);
-
                     bool kingInCheck = false;
 
                     if (labels[KingY, KingX].Tag != null &&
@@ -517,7 +516,7 @@ namespace Chess
                     }
                 }
             }
-
+            //working in progress
             return false;
         }
 
@@ -526,7 +525,7 @@ namespace Chess
         {
             // Determine which king t check (the one whose turn it is now)
             string kingColorToCheck = currentPlayerTurn;
-
+            //working in progress
             //Check if the king is in check.
             bool isInCheck = IsKingInCheck(kingColorToCheck);
             MessageBox.Show(Convert.ToString(IsKingInCheck(kingColorToCheck)));
@@ -534,7 +533,7 @@ namespace Chess
             {
                 // Check the Game state
                 gamestate = GameState.Check;
-
+                //working in progress
                 // Check if it's checkmate by seeing if any move can get out of the check
                 if (IsCheckmate(kingColorToCheck))
                 {
@@ -542,7 +541,7 @@ namespace Chess
                     MessageBox.Show($"Checkmate! {(kingColorToCheck == "white" ? "Black": "White")} wins!");
                     // To do Restart the form when checkmate
                     ResetGame();
-
+                    //working in progress
                 }
                 else
                 {
@@ -553,7 +552,7 @@ namespace Chess
             {
                 gamestate = GameState.Normal;
             }
-
+            //working in progress
         }
         private bool IsCheckmate(string kingColor)
         {
