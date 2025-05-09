@@ -1,6 +1,6 @@
 ﻿// Auteur: Thomas Lucking
 // Creation: 10/03/2025
-// Date de Modification: 2/5/2025 
+// Date de Modification: 8/5/2025 
 // Description : La déclaration de l'échiquier,les position de les pièces placées à l'intérieur de l'échiquier et du système d'échec et mat.
 
 
@@ -13,6 +13,8 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Net.NetworkInformation;
 using System.Linq;
+using System.Runtime.InteropServices;
+using System.Diagnostics;
 
 namespace Chess
 {
@@ -36,8 +38,7 @@ namespace Chess
         // Properties to track what the playerturn is currently and to track the gamestate and If the king can move to resolve the check.
         private string currentPlayerTurn = "White";
         private GameState gamestate = GameState.Normal;
-        private bool IsMovingToResolveCheck = false;
-       
+        
         private Chesspieces whiteKing;
         private Chesspieces blackKing;
 
@@ -47,6 +48,9 @@ namespace Chess
 
             // Initialize the 2D array of labels
             InitializeComponent();
+
+
+
             labels = Mychessboard.InitializeChessboard();
             for (int row = 0; row < 8; row++)
             {
@@ -335,6 +339,13 @@ namespace Chess
                             // If this is the piece at the clicked position and checks if it's the players turn
                             if (item.PositionX == clickedX && item.PositionY == clickedY && item.color == currentPlayerTurn)
                             {
+
+                                if (!CanPieceMoveInCheck(item))
+                                {
+                                    MessageBox.Show($"Your king is in check! Only your king can move.");
+                                    return;
+
+                                }
                                 item.GetMovePossibilities(labels);
                                 chesspieceClicked = item;
                                 break;
@@ -481,84 +492,124 @@ namespace Chess
         {
             // Find the king's position
             Chesspieces king = (kingColor == "white") ? whiteKing : blackKing;
-            int KingX = king.PositionX;
-            int KingY = king.PositionY;
-            // check if an opponent piece can attack the king's position
-            string oppenentColor = (kingColor == "white") ? "black" : "white";
+            int kingX = king.PositionX;
+            int kingY = king.PositionY;
 
-            foreach(var piece in pieces)
+            // Debug: Show king position
+            // MessageBox.Show($"Checking if {kingColor} king at position ({kingX},{kingY}) is in check");
+
+            // Check if an opponent piece can attack the king's position
+            string opponentColor = (kingColor == "white") ? "black" : "white";
+
+            // Clear any existing move indicators before starting
+            ClearMoveIndicators();
+
+            foreach (var piece in pieces)
             {
-                if (piece.color == oppenentColor)
+                if (piece.color == opponentColor)
                 {
-                    // Save original position to restore later
-                    int originalX = piece.PositionX;
-                    int originalY = piece.PositionY;
+                    // Debug: Show which piece we're checking
+                    // MessageBox.Show($"Checking {piece.color} {piece.piecename} at ({piece.PositionX},{piece.PositionY})");
 
-                    //clear any move indicators
-                    ClearMoveIndicators();
-
-                    // get the movement Possibilities of the opponent piece.
+                    // Get the movement possibilities of the opponent piece
                     piece.GetMovePossibilities(labels);
-                    bool kingInCheck = false;
 
-                    if (labels[KingY, KingX].Tag != null &&
-                       (labels[KingY, KingX].Tag.ToString().Contains("/Canmove") ||
-                        labels[KingY, KingX].Tag.ToString().Contains("/Cantake")))
+                    // Debug: After getting move possibilities, check what's in the king's position
+                    if (labels[kingY, kingX].Tag != null)
                     {
-                        kingInCheck = true;
+                        string kingPositionTag = labels[kingY, kingX].Tag.ToString();
+                        // MessageBox.Show($"King position tag: {kingPositionTag}");
+
+                        if (kingPositionTag.Contains("/Canmove") || kingPositionTag.Contains("/Cantake"))
+                        {
+                            // MessageBox.Show($"{piece.piecename} at ({piece.PositionX},{piece.PositionY}) can attack king!");
+                            // Clean up before returning
+                            ClearMoveIndicators();
+                            return true;
+                        }
+                    }
+                    else
+                    {
+                        // MessageBox.Show("King position tag is null");
                     }
 
+                    // Count how many squares are marked as move possibilities
+                    int moveCount = 0;
+                    for (int y = 0; y < 8; y++)
+                    {
+                        for (int x = 0; x < 8; x++)
+                        {
+                            if (labels[y, x].Tag != null &&
+                               (labels[y, x].Tag.ToString().Contains("/Canmove") ||
+                                labels[y, x].Tag.ToString().Contains("/Cantake")))
+                            {
+                                moveCount++;
+                            }
+                        }
+                    }
+                    // MessageBox.Show($"This piece has {moveCount} possible moves");
+
+                    // Clear move indicators after checking each piece
                     ClearMoveIndicators();
-
-                    if (kingInCheck)
-                    {
-                        return true;
-                    }
                 }
             }
-            //working in progress
             return false;
         }
 
 
         private void CheckForCheckAndCheckmate()
         {
-            // Determine which king t check (the one whose turn it is now)
+            // Determine which king to check (the one whose turn it is now)
             string kingColorToCheck = currentPlayerTurn;
-            //working in progress
-            //Check if the king is in check.
+
+            // Debug output
+            Debug.WriteLine($"Checking if {kingColorToCheck} king is in check");
+
+            // Check if the king is in check
             bool isInCheck = IsKingInCheck(kingColorToCheck);
-            MessageBox.Show(Convert.ToString(IsKingInCheck(kingColorToCheck)));
+            Debug.WriteLine($"Is {kingColorToCheck} king in check? {isInCheck}");
+
             if (isInCheck)
             {
                 // Check the Game state
                 gamestate = GameState.Check;
-                //working in progress
+                Debug.WriteLine("Setting game state to Check");
+
+                if (gamestate == GameState.Check && gamestate != GameState.CheckMate)
+                {
+                    
+                    string kingColorInCheck = currentPlayerTurn;
+                    Debug.WriteLine($"{kingColorInCheck} king is in check - only king can move until check is resolved");
+
+                    // Display message to the player
+                    MessageBox.Show($"Check! {kingColorInCheck.Substring(0, 1).ToUpper() + kingColorInCheck.Substring(1)} king is in check. Only the king can move.");
+                }
                 // Check if it's checkmate by seeing if any move can get out of the check
-                if (IsCheckmate(kingColorToCheck))
+                bool isCheckmate = IsCheckmate(kingColorToCheck);
+                Debug.WriteLine($"Is it checkmate? {isCheckmate}");
+
+                if (isCheckmate && gamestate != GameState.Check)
                 {
                     gamestate = GameState.CheckMate;
-                    MessageBox.Show($"Checkmate! {(kingColorToCheck == "white" ? "Black": "White")} wins!");
-                    // To do Restart the form when checkmate
+                    MessageBox.Show($"Checkmate! {(kingColorToCheck == "white" ? "Black" : "White")} wins!");
+                    // The next line was likely for debugging and should be removed
+                    // MessageBox.Show(Convert.ToString(IsKingInCheck(kingColorToCheck)));
                     ResetGame();
-                    //working in progress
                 }
-                else
-                {
-                    MessageBox.Show($"{char.ToUpper(kingColorToCheck[0]) + kingColorToCheck.Substring(1)} is in check!");
-                }
+               
+                
             }
             else
             {
                 gamestate = GameState.Normal;
+                Debug.WriteLine("Setting game state to Normal");
             }
-            //working in progress
         }
         private bool IsCheckmate(string kingColor)
         {
             var piecesToCheck = pieces.Where(p => p.color == kingColor).ToList();
 
-            MessageBox.Show(Convert.ToString(piecesToCheck));
+            // MessageBox.Show(Convert.ToString(piecesToCheck));
             // Try all possible moves for all pieces of the given color
             foreach (var piece in piecesToCheck)
             {
@@ -636,6 +687,33 @@ namespace Chess
                     }
                 }
             }
+        }
+
+        private bool CanPieceMoveInCheck(Chesspieces piece)
+        {
+            // If we're not in check, any piece can move
+            if (gamestate != GameState.Check)
+            {
+                return true;
+            }
+
+            // If we're in check, only the current player's king can move
+            if (piece.color == currentPlayerTurn && piece.piecename == "King")
+            {
+                Debug.WriteLine($"Allowing {currentPlayerTurn} king to move while in check");
+                return true;
+            }
+
+            // If it's a piece of the player who is NOT in check, they can move freely
+            if (piece.color != currentPlayerTurn)
+            {
+                Debug.WriteLine($"Allowing {piece.color} piece to move as their king is not in check");
+                return true;
+            }
+
+            // All other pieces belonging to the player in check cannot move
+            Debug.WriteLine($"Blocking {piece.color} {piece.piecename} from moving while king is in check");
+            return false;
         }
 
         // method to restart the game once someone get checkmated

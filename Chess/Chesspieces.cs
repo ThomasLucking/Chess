@@ -1,6 +1,6 @@
 ﻿// Auteur: Thomas Lucking
 // Creation: 10/03/2025
-// Date de Modification: 2/5/2025 
+// Date de Modification: 8/5/2025 
 // Description: Description : Toutes les fonctionnalités nécessaires au jeu d'échecs comme les possibilités de mouvement, la méthode de capture des pièces. La méthode de déplacement. 
 
 using System;
