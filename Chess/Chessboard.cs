@@ -1,7 +1,7 @@
 ﻿// Auteur: Thomas Lucking
 // Creation: 10/03/2025
 // Date de Modification: 2/5/2025 
-// Description : Pose l'échiquier 
+// Description : Chessboard
 
 using System;
 using System.Collections.Generic;

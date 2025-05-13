@@ -1,7 +1,7 @@
 ﻿// Auteur: Thomas Lucking
 // Creation: 10/03/2025
 // Date de Modification: 8/5/2025 
-// Description: Description : Toutes les fonctionnalités nécessaires au jeu d'échecs comme les possibilités de mouvement, la méthode de capture des pièces. La méthode de déplacement. 
+// Description: Description : All the main functionalities to play chess. Like the movement possibilities. The method to take other pieces and also the method to place pieces.
 
 using System;
 using System.Collections.Generic;

@@ -1,7 +1,7 @@
 ﻿// Auteur: Thomas Lucking
 // Creation: 10/03/2025
 // Date de Modification: 8/5/2025 
-// Description : La déclaration de l'échiquier,les position de les pièces placées à l'intérieur de l'échiquier et du système d'échec et mat.
+// Description : declaration of the chessboard and also the check/checkmate system and the chessase click method in which the player can click other squares.
 
 
 using System;
@@ -41,6 +41,7 @@ namespace Chess
         
         private Chesspieces whiteKing;
         private Chesspieces blackKing;
+        private Chesspieces lastCheckingPiece = null;
 
 
         public Form1()
@@ -508,7 +509,6 @@ namespace Chess
             {
                 if (piece.color == opponentColor)
                 {
-                    // Debug: Show which piece we're checking
                     // MessageBox.Show($"Checking {piece.color} {piece.piecename} at ({piece.PositionX},{piece.PositionY})");
 
                     // Get the movement possibilities of the opponent piece
@@ -562,42 +562,35 @@ namespace Chess
             // Determine which king to check (the one whose turn it is now)
             string kingColorToCheck = currentPlayerTurn;
 
-            // Debug output
             Debug.WriteLine($"Checking if {kingColorToCheck} king is in check");
 
-            // Check if the king is in check
             bool isInCheck = IsKingInCheck(kingColorToCheck);
-            Debug.WriteLine($"Is {kingColorToCheck} king in check? {isInCheck}");
+            bool isCheckmate = false;
 
             if (isInCheck)
             {
-                // Check the Game state
-                gamestate = GameState.Check;
-                Debug.WriteLine("Setting game state to Check");
-
-                if (gamestate == GameState.Check && gamestate != GameState.CheckMate)
-                {
-                    
-                    string kingColorInCheck = currentPlayerTurn;
-                    Debug.WriteLine($"{kingColorInCheck} king is in check - only king can move until check is resolved");
-
-                    // Display message to the player
-                    MessageBox.Show($"Check! {kingColorInCheck.Substring(0, 1).ToUpper() + kingColorInCheck.Substring(1)} king is in check. Only the king can move.");
-                }
-                // Check if it's checkmate by seeing if any move can get out of the check
-                bool isCheckmate = IsCheckmate(kingColorToCheck);
+                Debug.WriteLine($"{kingColorToCheck} king is in check!");
+                // Now that we know it's check, THEN check for checkmate
+                isCheckmate = IsCheckmate(kingColorToCheck);
                 Debug.WriteLine($"Is it checkmate? {isCheckmate}");
 
-                if (isCheckmate && gamestate != GameState.Check)
+                if (isCheckmate)
                 {
                     gamestate = GameState.CheckMate;
                     MessageBox.Show($"Checkmate! {(kingColorToCheck == "white" ? "Black" : "White")} wins!");
-                    // The next line was likely for debugging and should be removed
-                    // MessageBox.Show(Convert.ToString(IsKingInCheck(kingColorToCheck)));
                     ResetGame();
+                    return;
                 }
-               
-                
+                else
+                {
+                    gamestate = GameState.Check;
+                    Debug.WriteLine("Setting game state to Check");
+
+                    string kingColorInCheck = currentPlayerTurn;
+                    Debug.WriteLine($"{kingColorInCheck} king is in check - only king can move until check is resolved");
+
+                    MessageBox.Show($"Check! {char.ToUpper(kingColorInCheck[0]) + kingColorInCheck.Substring(1)} king is in check. Only the king can move.");
+                }
             }
             else
             {
@@ -605,16 +598,22 @@ namespace Chess
                 Debug.WriteLine("Setting game state to Normal");
             }
         }
+
         private bool IsCheckmate(string kingColor)
         {
+            // First check if the king is even in check
+            if (!IsKingInCheck(kingColor))
+            {
+                return false; // Not in check, so definitely not checkmate
+            }
+
+            // Get all pieces of the given color
             var piecesToCheck = pieces.Where(p => p.color == kingColor).ToList();
 
-            // MessageBox.Show(Convert.ToString(piecesToCheck));
             // Try all possible moves for all pieces of the given color
             foreach (var piece in piecesToCheck)
             {
                 // Save the original position
-
                 int originalX = piece.PositionX;
                 int originalY = piece.PositionY;
 
@@ -624,32 +623,59 @@ namespace Chess
                 // Get all possible moves for this piece
                 piece.GetMovePossibilities(labels);
 
-                // Filter moves that would still leave the king in check
-                FilterMovesLeadingToCheck(piece);
-                
-
-                // Check if there are any valid moves left 
-                for(int y = 0; y < 8; y++)
+                // Check each possible move
+                for (int y = 0; y < 8; y++)
                 {
-                    for(int x = 0; x < 8; x++)
+                    for (int x = 0; x < 8; x++)
                     {
                         if (labels[y, x].Tag != null &&
                            (labels[y, x].Tag.ToString().Contains("/Canmove") ||
                             labels[y, x].Tag.ToString().Contains("/Cantake")))
                         {
-                            // There's at least one valid move, so it's not checkmate
-                            ClearMoveIndicators();
-                            return false;
+                            // Found a potential move
+
+                            // Keep track of all the pieces on the board before the move
+                            var removedPiece = pieces.FirstOrDefault(p => p.PositionX == x && p.PositionY == y && p != piece);
+                            bool hadRemovedPiece = removedPiece != null;
+
+                            // Temporarily remove any piece at the destination square
+                            if (hadRemovedPiece)
+                            {
+                                pieces.Remove(removedPiece);
+                            }
+
+                            // Temporarily move the piece
+                            piece.PositionX = x;
+                            piece.PositionY = y;
+
+                            // Check if this move resolves the check
+                            bool stillInCheck = IsKingInCheck(kingColor);
+
+                            // Restore the original position
+                            piece.PositionX = originalX;
+                            piece.PositionY = originalY;
+
+                            // Restore any removed piece
+                            if (hadRemovedPiece && removedPiece != null)
+                            {
+                                pieces.Add(removedPiece);
+                            }
+
+                            // If this move resolves the check, it's not checkmate
+                            if (!stillInCheck)
+                            {
+                                ClearMoveIndicators();
+                                return false;
+                            }
                         }
-
                     }
-
                 }
+
                 // Clean up 
                 ClearMoveIndicators();
-
             }
-            // if we've checked all piece and found no valid moves, it's checkmate.
+
+            // If we've checked all pieces and found no moves that resolve the check, it's checkmate
             return true;
         }
 
