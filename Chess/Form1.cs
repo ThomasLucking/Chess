@@ -41,7 +41,6 @@ namespace Chess
         
         private Chesspieces whiteKing;
         private Chesspieces blackKing;
-        private Chesspieces lastCheckingPiece = null;
 
 
         public Form1()
@@ -599,7 +598,7 @@ namespace Chess
             }
         }
 
-        private bool IsCheckmate(string kingColor)
+        private bool IsCheckmate(string kingColor) 
         {
             // First check if the king is even in check
             if (!IsKingInCheck(kingColor))
@@ -680,7 +679,6 @@ namespace Chess
         }
 
 
-
         // Helper method to clear all move indicators
         private void ClearMoveIndicators()
         {
@@ -689,27 +687,51 @@ namespace Chess
                 if (item.Tag != null)
                 {
                     string tagStr = Convert.ToString(item.Tag);
-
                     // Handle Canmove tags
                     if (tagStr.Contains("/Canmove"))
                     {
                         item.Image = null;
+                        // Preserve piece information if it exists
                         string[] parts = tagStr.Split('/');
-                        item.Tag = parts[0]; // Keep only the position
+                        string pieceInfo = "";
+
+                        // Look for color-piecename format
+                        for (int i = 1; i < parts.Length; i++)
+                        {
+                            if (parts[i].Contains("-") &&
+                                (parts[i].StartsWith("white") || parts[i].StartsWith("black")))
+                            {
+                                pieceInfo = parts[i];
+                                break;
+                            }
+                        }
+
+                        if (!string.IsNullOrEmpty(pieceInfo))
+                            item.Tag = $"{parts[0]}/{pieceInfo}";
+                        else
+                            item.Tag = parts[0]; // Keep only the position
                     }
-                    // Handle Cantake tags - now we preserve the piece info
+                    // Handle Cantake tags
                     else if (tagStr.Contains("/Cantake"))
                     {
                         string[] parts = tagStr.Split('/');
-                        // Reconstruct the tag with position and piece info if available
-                        if (parts.Length >= 3)
+                        string pieceInfo = "";
+
+                        // Look for color-piecename format
+                        for (int i = 1; i < parts.Length; i++)
                         {
-                            item.Tag = $"{parts[0]}/{parts[2]}"; // Keep position and "color-piecename"
+                            if (parts[i].Contains("-") &&
+                                (parts[i].StartsWith("white") || parts[i].StartsWith("black")))
+                            {
+                                pieceInfo = parts[i];
+                                break;
+                            }
                         }
+
+                        if (!string.IsNullOrEmpty(pieceInfo))
+                            item.Tag = $"{parts[0]}/{pieceInfo}";
                         else
-                        {
-                            item.Tag = parts[0]; // If no piece info, keep only the position
-                        }
+                            item.Tag = parts[0]; // Keep only the position
                     }
                 }
             }
@@ -722,7 +744,7 @@ namespace Chess
             {
                 return true;
             }
-
+            
             // If we're in check, only the current player's king can move
             if (piece.color == currentPlayerTurn && piece.piecename == "King")
             {

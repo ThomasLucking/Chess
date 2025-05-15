@@ -296,14 +296,6 @@ namespace Chess
 
             if (newX >= 0 && newX < labels.GetLength(1) && newY >= 0 && newY < labels.GetLength(0))
             {
-                bool isCapture = false;
-
-                // Check if this is a capture move
-                if (labels[newY, newX].Tag != null && labels[newY, newX].Tag.ToString().Contains("/Cantake"))
-                {
-                    isCapture = true;
-                    Console.WriteLine("Capturing piece at " + newX + "," + newY);
-                }
 
                 // Remove the piece from its current position
                 labels[positionY, positionX].Image = null;
