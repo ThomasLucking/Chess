@@ -697,62 +697,7 @@ namespace Chess
 
 
         // Helper method to clear all move indicators
-        private void ClearMoveIndicators()
-        {
-            foreach (var item in labels)
-            {
-                if (item.Tag != null)
-                {
-                    string tagStr = Convert.ToString(item.Tag);
-                    // Handle Canmove tags
-                    if (tagStr.Contains("/Canmove"))
-                    {
-                        item.Image = null;
-                        // Preserve piece information if it exists
-                        string[] parts = tagStr.Split('/');
-                        string pieceInfo = "";
-
-                        // Look for color-piecename format
-                        for (int i = 1; i < parts.Length; i++)
-                        {
-                            if (parts[i].Contains("-") &&
-                                (parts[i].StartsWith("white") || parts[i].StartsWith("black")))
-                            {
-                                pieceInfo = parts[i];
-                                break;
-                            }
-                        }
-
-                        if (!string.IsNullOrEmpty(pieceInfo))
-                            item.Tag = $"{parts[0]}/{pieceInfo}";
-                        else
-                            item.Tag = parts[0]; // Keep only the position
-                    }
-                    // Handle Cantake tags
-                    else if (tagStr.Contains("/Cantake"))
-                    {
-                        string[] parts = tagStr.Split('/');
-                        string pieceInfo = "";
-
-                        // Look for color-piecename format
-                        for (int i = 1; i < parts.Length; i++)
-                        {
-                            if (parts[i].Contains("-") &&
-                                (parts[i].StartsWith("white") || parts[i].StartsWith("black")))
-                            {
-                                pieceInfo = parts[i];
-                                break;
-                            }
-                        }
-
-                        if (!string.IsNullOrEmpty(pieceInfo))
-                            item.Tag = $"{parts[0]}/{pieceInfo}";
-                        else
-                            item.Tag = parts[0]; // Keep only the position
-                    }
-                }
-            }
-        }
+        
 
         private bool CanPieceMoveInCheck(Chesspieces piece)
         {
@@ -842,8 +787,64 @@ namespace Chess
                 }
             }
         }
-                // method to restart the game once someone get checkmated
-                private void ResetGame()
+        private void ClearMoveIndicators()
+        {
+            foreach (var item in labels)
+            {
+                if (item.Tag != null)
+                {
+                    string tagStr = Convert.ToString(item.Tag);
+                    // Handle Canmove tags
+                    if (tagStr.Contains("/Canmove"))
+                    {
+                        item.Image = null;
+                        // Preserve piece information if it exists
+                        string[] parts = tagStr.Split('/');
+                        string pieceInfo = "";
+
+                        // Look for color-piecename format
+                        for (int i = 1; i < parts.Length; i++)
+                        {
+                            if (parts[i].Contains("-") &&
+                                (parts[i].StartsWith("white") || parts[i].StartsWith("black")))
+                            {
+                                pieceInfo = parts[i];
+                                break;
+                            }
+                        }
+
+                        if (!string.IsNullOrEmpty(pieceInfo))
+                            item.Tag = $"{parts[0]}/{pieceInfo}";
+                        else
+                            item.Tag = parts[0]; // Keep only the position
+                    }
+                    // Handle Cantake tags
+                    else if (tagStr.Contains("/Cantake"))
+                    {
+                        string[] parts = tagStr.Split('/');
+                        string pieceInfo = "";
+
+                        // Look for color-piecename format
+                        for (int i = 1; i < parts.Length; i++)
+                        {
+                            if (parts[i].Contains("-") &&
+                                (parts[i].StartsWith("white") || parts[i].StartsWith("black")))
+                            {
+                                pieceInfo = parts[i];
+                                break;
+                            }
+                        }
+
+                        if (!string.IsNullOrEmpty(pieceInfo))
+                            item.Tag = $"{parts[0]}/{pieceInfo}";
+                        else
+                            item.Tag = parts[0]; // Keep only the position
+                    }
+                }
+            }
+        }
+        // method to restart the game once someone get checkmated
+        private void ResetGame()
         {
             Application.Restart();
         }
