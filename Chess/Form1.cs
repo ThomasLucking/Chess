@@ -42,12 +42,18 @@ namespace Chess
         private Chesspieces whiteKing;
         private Chesspieces blackKing;
 
+        private bool isBoardRotated = false;
+
+
 
         public Form1()
         {
 
+
+
             // Initialize the 2D array of labels
             InitializeComponent();
+
 
 
 
@@ -324,27 +330,34 @@ namespace Chess
             // If we clicked on a piece to select it
             if (chesspieceClicked == null && clicked_label.Image != null && clicked_label.Image != Properties.Resources.dot)
             {
-                foreach (var item in pieces)
+                // Extract X and Y positions from the tag
+                string[] tagParts = coordinates.Split('/');
+                if (tagParts.Length > 0)
                 {
-                    // Extract X and Y positions from the tag
-                    string[] tagParts = coordinates.Split('/');
-                    if (tagParts.Length > 0)
+                    string[] posParts = tagParts[0].Split('-');
+                    if (posParts.Length >= 2)
                     {
-                        string[] posParts = tagParts[0].Split('-');
-                        if (posParts.Length >= 2)
+                        int clickedX = Convert.ToInt32(posParts[0]);
+                        int clickedY = Convert.ToInt32(posParts[1]);
+
+                        // Convert visual coordinates to logical coordinates if board is rotated
+                        int logicalX = clickedX;
+                        int logicalY = clickedY;
+                        if (isBoardRotated)
                         {
-                            int clickedX = Convert.ToInt32(posParts[0]);
-                            int clickedY = Convert.ToInt32(posParts[1]);
+                            logicalX = 7 - clickedX;
+                            logicalY = 7 - clickedY;
+                        }
 
-                            // If this is the piece at the clicked position and checks if it's the players turn
-                            if (item.PositionX == clickedX && item.PositionY == clickedY && item.color == currentPlayerTurn)
+                        // Find the piece at the logical position
+                        foreach (var item in pieces)
+                        {
+                            if (item.PositionX == logicalX && item.PositionY == logicalY && item.color == currentPlayerTurn)
                             {
-
                                 if (!CanPieceMoveInCheck(item))
                                 {
                                     MessageBox.Show($"Your king is in check! Only your king can move.");
                                     return;
-
                                 }
                                 item.GetMovePossibilities(labels);
                                 chesspieceClicked = item;
@@ -368,12 +381,15 @@ namespace Chess
                     {
                         int clickedX = Convert.ToInt32(posParts[0]);
                         int clickedY = Convert.ToInt32(posParts[1]);
-                        // Store the original position.
 
-                        int originalX = chesspieceClicked.PositionX;
-                        int originalY = chesspieceClicked.PositionY;
-                        //working in progress
-
+                        // Convert visual coordinates to logical coordinates if board is rotated
+                        int logicalX = clickedX;
+                        int logicalY = clickedY;
+                        if (isBoardRotated)
+                        {
+                            logicalX = 7 - clickedX;
+                            logicalY = 7 - clickedY;
+                        }
 
                         // If this is a capture, remove the captured piece from the pieces list
                         if (Convert.ToString(clicked_label.Tag).Contains("/Cantake"))
@@ -382,7 +398,7 @@ namespace Chess
                             Chesspieces capturedPiece = null;
                             foreach (var piece in pieces)
                             {
-                                if (piece.PositionX == clickedX && piece.PositionY == clickedY)
+                                if (piece.PositionX == logicalX && piece.PositionY == logicalY)
                                 {
                                     capturedPiece = piece;
                                     break;
@@ -395,15 +411,16 @@ namespace Chess
                             }
                         }
 
-                        // Move the piece to the new position
-                        chesspieceClicked.MovePiece(Convert.ToString(clickedX), Convert.ToString(clickedY), labels);
+                        // Move the piece to the new logical position
+                        chesspieceClicked.MovePieceLogical(logicalX, logicalY, labels);
                         currentPlayerTurn = (currentPlayerTurn == "white") ? "black" : "white";
+
+                        // Rotate the board after the turn changes
+                        RotateBoard();
+
+                        MessageBox.Show("it's " + currentPlayerTurn + 's' + " turn");
                         CheckForCheckAndCheckmate();
                         chesspieceClicked = null;
-
-                        
-
-                        
                     }
                 }
             }
@@ -763,9 +780,70 @@ namespace Chess
             Debug.WriteLine($"Blocking {piece.color} {piece.piecename} from moving while king is in check");
             return false;
         }
+        private void RotateBoard()
+        {
+            // Create temporary arrays to hold the rotated board state
+            Image[,] tempImages = new Image[8, 8];
+            object[,] tempTags = new object[8, 8];
 
-        // method to restart the game once someone get checkmated
-        private void ResetGame()
+            // Copy current state and rotate 180 degrees
+            for (int row = 0; row < 8; row++)
+            {
+                for (int col = 0; col < 8; col++)
+                {
+                    int newRow = 7 - row;
+                    int newCol = 7 - col;
+
+                    tempImages[newRow, newCol] = labels[row, col].Image;
+                    tempTags[newRow, newCol] = labels[row, col].Tag;
+                }
+            }
+
+            // Apply the rotated state back to the labels
+            for (int row = 0; row < 8; row++)
+            {
+                for (int col = 0; col < 8; col++)
+                {
+                    labels[row, col].Image = tempImages[row, col];
+                    labels[row, col].Tag = tempTags[row, col];
+                }
+            }
+
+            // Update all piece positions to match the rotated board
+            foreach (var piece in pieces)
+            {
+                int newX = 7 - piece.PositionX;
+                int newY = 7 - piece.PositionY;
+                piece.PositionX = newX;
+                piece.PositionY = newY;
+            }
+
+            // Update the tags to reflect the new positions
+            for (int row = 0; row < 8; row++)
+            {
+                for (int col = 0; col < 8; col++)
+                {
+                    if (labels[row, col].Tag != null)
+                    {
+                        string tagStr = labels[row, col].Tag.ToString();
+                        string[] parts = tagStr.Split('/');
+
+                        // Update the position part of the tag
+                        parts[0] = col + "-" + row;
+
+                        // Reconstruct the tag
+                        labels[row, col].Tag = string.Join("/", parts);
+                    }
+                    else
+                    {
+                        // Set basic position tag if none exists
+                        labels[row, col].Tag = col + "-" + row;
+                    }
+                }
+            }
+        }
+                // method to restart the game once someone get checkmated
+                private void ResetGame()
         {
             Application.Restart();
         }
