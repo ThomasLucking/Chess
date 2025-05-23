@@ -24,7 +24,6 @@ namespace Chess
         Normal,
         Check,
         CheckMate,
-        Stalemate
     }
     public partial class Form1 : Form
     {
@@ -343,11 +342,7 @@ namespace Chess
                         // Convert visual coordinates to logical coordinates if board is rotated
                         int logicalX = clickedX;
                         int logicalY = clickedY;
-                        if (isBoardRotated)
-                        {
-                            logicalX = 7 - clickedX;
-                            logicalY = 7 - clickedY;
-                        }
+       
 
                         // Find the piece at the logical position
                         foreach (var item in pieces)
@@ -360,6 +355,7 @@ namespace Chess
                                     return;
                                 }
                                 item.GetMovePossibilities(labels);
+                                FilterMovesLeadingToCheck(item);
                                 chesspieceClicked = item;
                                 break;
                             }
@@ -385,11 +381,7 @@ namespace Chess
                         // Convert visual coordinates to logical coordinates if board is rotated
                         int logicalX = clickedX;
                         int logicalY = clickedY;
-                        if (isBoardRotated)
-                        {
-                            logicalX = 7 - clickedX;
-                            logicalY = 7 - clickedY;
-                        }
+                        
 
                         // If this is a capture, remove the captured piece from the pieces list
                         if (Convert.ToString(clicked_label.Tag).Contains("/Cantake"))
@@ -416,7 +408,7 @@ namespace Chess
                         currentPlayerTurn = (currentPlayerTurn == "white") ? "black" : "white";
 
                         // Rotate the board after the turn changes
-                        RotateBoard();
+                        // RotateBoard();
 
                         MessageBox.Show("it's " + currentPlayerTurn + 's' + " turn");
                         CheckForCheckAndCheckmate();
@@ -431,7 +423,6 @@ namespace Chess
             List<Tuple<int, int>> invalidMoves = new List<Tuple<int, int>>();
 
             // iterate through all the squares with the "/CanMove" or "Cantake" tags
-
             for (int y = 0; y < 8; y++)
             {
                 for (int x = 0; x < 8; x++)
@@ -446,43 +437,44 @@ namespace Chess
 
                         // Save captured piece if any
                         Chesspieces capturedPiece = null;
-                        foreach (var p in pieces)
+                        foreach (var p in pieces.ToList()) // Use ToList() to avoid modification during iteration
                         {
-                            if (p.PositionX == x && p.PositionY == y)
+                            if (p.PositionX == x && p.PositionY == y && p != piece)
                             {
                                 capturedPiece = p;
                                 pieces.Remove(capturedPiece);
                                 break;
                             }
                         }
+
                         // Temporarily make the move
                         piece.PositionX = x;
                         piece.PositionY = y;
 
-
                         // Check if this move would put our king in check.
                         bool wouldbeInCheck = IsKingInCheck(piece.color);
 
-                        // The message box said false
-                        // MessageBox.Show(Convert.ToString(IsKingInCheck(piece.color)));
-                        // if it would put is in check, add to invalid moves
-                        if (wouldbeInCheck)
-                        {
-                            invalidMoves.Add(new Tuple<int, int>(x, y));
-                        }
-
+                        // Restore the original position BEFORE checking other moves
                         piece.PositionX = originalX;
                         piece.PositionY = originalY;
 
+                        // Restore captured piece if any
                         if (capturedPiece != null)
                         {
                             pieces.Add(capturedPiece);
+                        }
+
+                        // if it would put us in check, add to invalid moves
+                        if (wouldbeInCheck)
+                        {
+                            invalidMoves.Add(new Tuple<int, int>(x, y));
                         }
                     }
                 }
             }
 
-            foreach(var invalidMove in invalidMoves)
+            // Now remove the invalid moves
+            foreach (var invalidMove in invalidMoves)
             {
                 int x = invalidMove.Item1;
                 int y = invalidMove.Item2;
@@ -494,15 +486,17 @@ namespace Chess
                     if (tagstr.Contains("/Canmove"))
                     {
                         labels[y, x].Image = null;
-                        labels[y, x].Image = null;
-
-                    }else if (tagstr.Contains("/Cantake"))
+                        // Keep only the position part of the tag
+                        string[] parts = tagstr.Split('/');
+                        labels[y, x].Tag = parts[0]; // Keep position, remove /Canmove
+                    }
+                    else if (tagstr.Contains("/Cantake"))
                     {
-                        // keep the piece image but remove the tag
-                        labels[y, x].Tag = tagstr.Split('/')[0];
+                        // keep the piece image but remove the /Cantake tag
+                        string[] parts = tagstr.Split('/');
+                        labels[y, x].Tag = parts[0]; // Keep position, remove /Cantake
                     }
                 }
-
             }
         }
         private bool IsKingInCheck(string kingColor)
@@ -725,6 +719,7 @@ namespace Chess
             Debug.WriteLine($"Blocking {piece.color} {piece.piecename} from moving while king is in check");
             return false;
         }
+        /*
         private void RotateBoard()
         {
             // Create temporary arrays to hold the rotated board state
@@ -786,7 +781,8 @@ namespace Chess
                     }
                 }
             }
-        }
+        }*/
+
         private void ClearMoveIndicators()
         {
             foreach (var item in labels)

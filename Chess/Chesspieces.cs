@@ -286,7 +286,7 @@ namespace Chess
                 }
             }
         }
-        public void GetMovePossibilitiesWithRotation(Label[,] labels, bool isBoardRotated)
+        /*public void GetMovePossibilitiesWithRotation(Label[,] labels, bool isBoardRotated)
         {
             // Clear any existing move indicators first
             ClearMoveIndicators(labels);
@@ -490,7 +490,7 @@ namespace Chess
                     }
                 }
             }
-        }
+        }*/
 
 
 
@@ -564,7 +564,7 @@ namespace Chess
                 }
             }
         }
-
+        
         public void MovePieceLogical(int newX, int newY, Label[,] labels)
         {
             if (newX >= 0 && newX < 8 && newY >= 0 && newY < 8)
