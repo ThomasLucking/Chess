@@ -9,3 +9,13 @@ H:\Chess\Chess\obj\Debug\Chess.csproj.CoreCompileInputs.cache
 H:\Chess\Chess\obj\Debug\Chess.exe
 H:\Chess\Chess\obj\Debug\Chess.pdb
 H:\Chess\Chess\obj\Debug\Chess.csproj.SuggestedBindingRedirects.cache
+C:\Users\thomaslucking\Documents\Chess\Chess\bin\Debug\Chess.exe.config
+C:\Users\thomaslucking\Documents\Chess\Chess\bin\Debug\Chess.exe
+C:\Users\thomaslucking\Documents\Chess\Chess\bin\Debug\Chess.pdb
+C:\Users\thomaslucking\Documents\Chess\Chess\obj\Debug\Chess.csproj.AssemblyReference.cache
+C:\Users\thomaslucking\Documents\Chess\Chess\obj\Debug\Chess.Form1.resources
+C:\Users\thomaslucking\Documents\Chess\Chess\obj\Debug\Chess.Properties.Resources.resources
+C:\Users\thomaslucking\Documents\Chess\Chess\obj\Debug\Chess.csproj.GenerateResource.cache
+C:\Users\thomaslucking\Documents\Chess\Chess\obj\Debug\Chess.csproj.CoreCompileInputs.cache
+C:\Users\thomaslucking\Documents\Chess\Chess\obj\Debug\Chess.exe
+C:\Users\thomaslucking\Documents\Chess\Chess\obj\Debug\Chess.pdb

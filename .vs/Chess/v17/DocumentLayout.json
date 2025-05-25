@@ -1,33 +1,33 @@
 {
   "Version": 1,
-  "WorkspaceRootPath": "H:\\Chess\\",
+  "WorkspaceRootPath": "C:\\Users\\thomaslucking\\Documents\\Chess\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|H:\\Chess\\Chess\\Chesspieces.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Chess\\Chesspieces.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|H:\\Chess\\Chess\\Form1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\thomaslucking\\Documents\\Chess\\Chess\\Form1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Chess\\Form1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|H:\\Chess\\Chess\\Program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Chess\\Program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\thomaslucking\\Documents\\Chess\\Chess\\Chesspieces.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Chess\\Chesspieces.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|H:\\Chess\\Chess\\Form1.Designer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Chess\\Form1.Designer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|H:\\Chess\\Chess\\Chessboard.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\thomaslucking\\Documents\\Chess\\Chess\\Chessboard.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Chess\\Chessboard.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|H:\\Chess\\chess\\properties\\resources.resx||{FF4D6ACA-9352-4A5F-821E-F4D6EBDCAB11}",
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\thomaslucking\\Documents\\Chess\\Chess\\Program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Chess\\Program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\thomaslucking\\Documents\\Chess\\Chess\\Form1.Designer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Chess\\Form1.Designer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\thomaslucking\\Documents\\Chess\\chess\\properties\\resources.resx||{FF4D6ACA-9352-4A5F-821E-F4D6EBDCAB11}",
       "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:chess\\properties\\resources.resx||{FF4D6ACA-9352-4A5F-821E-F4D6EBDCAB11}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|H:\\Chess\\chess\\form1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form",
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\thomaslucking\\Documents\\Chess\\chess\\form1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form",
       "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:chess\\form1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form"
     }
   ],
@@ -38,44 +38,54 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 2,
+          "SelectedChildIndex": 1,
           "Children": [
-            {
-              "$type": "Bookmark",
-              "Name": "ST:0:0:{cce594b6-0c39-4442-ba28-10c64ac7e89f}"
-            },
             {
               "$type": "Document",
               "DocumentIndex": 1,
+              "Title": "Chesspieces.cs",
+              "DocumentMoniker": "C:\\Users\\thomaslucking\\Documents\\Chess\\Chess\\Chesspieces.cs",
+              "RelativeDocumentMoniker": "Chess\\Chesspieces.cs",
+              "ToolTip": "C:\\Users\\thomaslucking\\Documents\\Chess\\Chess\\Chesspieces.cs",
+              "RelativeToolTip": "Chess\\Chesspieces.cs",
+              "ViewState": "AgIAANMAAAAAAAAAAAAmwDEBAAApAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-05-25T11:28:48.699Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
               "Title": "Form1.cs",
-              "DocumentMoniker": "H:\\Chess\\Chess\\Form1.cs",
+              "DocumentMoniker": "C:\\Users\\thomaslucking\\Documents\\Chess\\Chess\\Form1.cs",
               "RelativeDocumentMoniker": "Chess\\Form1.cs",
-              "ToolTip": "H:\\Chess\\Chess\\Form1.cs",
+              "ToolTip": "C:\\Users\\thomaslucking\\Documents\\Chess\\Chess\\Form1.cs",
               "RelativeToolTip": "Chess\\Form1.cs",
-              "ViewState": "AgIAAOQAAAAAAAAAAAAAwPMAAAAJAAAAAAAAAA==",
+              "ViewState": "AgIAAFcBAAAAAAAAAAAmwHIBAAAjAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-03-24T13:52:50.362Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 4,
+              "DocumentIndex": 2,
               "Title": "Chessboard.cs",
-              "DocumentMoniker": "H:\\Chess\\Chess\\Chessboard.cs",
+              "DocumentMoniker": "C:\\Users\\thomaslucking\\Documents\\Chess\\Chess\\Chessboard.cs",
               "RelativeDocumentMoniker": "Chess\\Chessboard.cs",
-              "ToolTip": "H:\\Chess\\Chess\\Chessboard.cs",
+              "ToolTip": "C:\\Users\\thomaslucking\\Documents\\Chess\\Chess\\Chessboard.cs",
               "RelativeToolTip": "Chess\\Chessboard.cs",
-              "ViewState": "AQIAAFgAAAAAAAAAAAAmwJ8AAAANAAAA",
+              "ViewState": "AgIAAD4AAAAAAAAAAAAAAD4AAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-03-24T13:52:50.378Z"
+              "WhenOpened": "2025-03-24T13:52:50.378Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 3,
+              "DocumentIndex": 4,
               "Title": "Form1.Designer.cs",
-              "DocumentMoniker": "H:\\Chess\\Chess\\Form1.Designer.cs",
+              "DocumentMoniker": "C:\\Users\\thomaslucking\\Documents\\Chess\\Chess\\Form1.Designer.cs",
               "RelativeDocumentMoniker": "Chess\\Form1.Designer.cs",
-              "ToolTip": "H:\\Chess\\Chess\\Form1.Designer.cs",
+              "ToolTip": "C:\\Users\\thomaslucking\\Documents\\Chess\\Chess\\Form1.Designer.cs",
               "RelativeToolTip": "Chess\\Form1.Designer.cs",
               "ViewState": "AQIAAAAAAAAAAAAAAAAAAAoAAAAvAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
@@ -83,24 +93,23 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 3,
               "Title": "Program.cs",
-              "DocumentMoniker": "H:\\Chess\\Chess\\Program.cs",
+              "DocumentMoniker": "C:\\Users\\thomaslucking\\Documents\\Chess\\Chess\\Program.cs",
               "RelativeDocumentMoniker": "Chess\\Program.cs",
-              "ToolTip": "H:\\Chess\\Chess\\Program.cs",
+              "ToolTip": "C:\\Users\\thomaslucking\\Documents\\Chess\\Chess\\Program.cs",
               "RelativeToolTip": "Chess\\Program.cs",
               "ViewState": "AgIAAAMAAAAAAAAAAAAAAAwAAAAWAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-03-24T13:52:50.393Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-03-24T13:52:50.393Z"
             },
             {
               "$type": "Document",
               "DocumentIndex": 5,
               "Title": "Resources.resx",
-              "DocumentMoniker": "H:\\Chess\\Chess\\Properties\\Resources.resx",
+              "DocumentMoniker": "C:\\Users\\thomaslucking\\Documents\\Chess\\Chess\\Properties\\Resources.resx",
               "RelativeDocumentMoniker": "Chess\\Properties\\Resources.resx",
-              "ToolTip": "H:\\Chess\\Chess\\Properties\\Resources.resx",
+              "ToolTip": "C:\\Users\\thomaslucking\\Documents\\Chess\\Chess\\Properties\\Resources.resx",
               "RelativeToolTip": "Chess\\Properties\\Resources.resx",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.002870|",
               "WhenOpened": "2025-03-24T13:52:50.393Z"
@@ -109,46 +118,11 @@
               "$type": "Document",
               "DocumentIndex": 6,
               "Title": "Form1.cs [Design]",
-              "DocumentMoniker": "H:\\Chess\\Chess\\Form1.cs",
+              "DocumentMoniker": "C:\\Users\\thomaslucking\\Documents\\Chess\\Chess\\Form1.cs",
               "RelativeDocumentMoniker": "Chess\\Form1.cs",
               "ToolTip": "H:\\Chess\\Chess\\Form1.cs [Design]",
-              "RelativeToolTip": "Chess\\Form1.cs [Design]",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003525|",
               "WhenOpened": "2025-03-24T13:52:50.393Z"
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "Orientation": 0,
-      "VerticalTabListWidth": 256,
-      "FloatingWindowState": {
-        "Id": "688c9ebb-d9de-4a53-a213-71aace57a420",
-        "Display": 0,
-        "X": 612,
-        "Y": 25,
-        "Width": 1349,
-        "Height": 681,
-        "WindowState": 0
-      },
-      "DocumentGroups": [
-        {
-          "DockedWidth": 200,
-          "SelectedChildIndex": 0,
-          "Children": [
-            {
-              "$type": "Document",
-              "DocumentIndex": 0,
-              "Title": "Chesspieces.cs",
-              "DocumentMoniker": "H:\\Chess\\Chess\\Chesspieces.cs",
-              "RelativeDocumentMoniker": "Chess\\Chesspieces.cs",
-              "ToolTip": "H:\\Chess\\Chess\\Chesspieces.cs",
-              "RelativeToolTip": "Chess\\Chesspieces.cs",
-              "ViewState": "AgIAAJ4AAAAAAAAAAAArwKsAAABCAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-03-24T15:07:23.609Z",
-              "EditorCaption": ""
             }
           ]
         }

@@ -1,0 +1,8 @@
+# Visual Studio files
+.vs/
+*.vsidx
+*.suo
+*.user
+bin/
+obj/
+.vs/slnx.sqlite

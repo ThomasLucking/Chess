@@ -1,8 +1,7 @@
 ﻿// Auteur: Thomas Lucking
 // Creation: 10/03/2025
 // Date de Modification: 8/5/2025 
-// Description : declaration of the chessboard and also the check/checkmate system and the chessase click method in which the player can click other squares.
-
+// Description: Fixed chess game with proper board rotation functionality
 
 using System;
 using System.Drawing;
@@ -35,26 +34,18 @@ namespace Chess
 
         Chesspieces chesspieceClicked = null;
         // Properties to track what the playerturn is currently and to track the gamestate and If the king can move to resolve the check.
-        private string currentPlayerTurn = "White";
+        private string currentPlayerTurn = "white";
         private GameState gamestate = GameState.Normal;
-        
+
         private Chesspieces whiteKing;
         private Chesspieces blackKing;
 
         private bool isBoardRotated = false;
 
-
-
         public Form1()
         {
-
-
-
             // Initialize the 2D array of labels
             InitializeComponent();
-
-
-
 
             labels = Mychessboard.InitializeChessboard();
             for (int row = 0; row < 8; row++)
@@ -69,10 +60,10 @@ namespace Chess
             #region Pawn   
             for (int i = 0; i < 8; i++)
             {
-                piecemovementpossibilities.Add(new int[] {0, -2});           
-                piecemovementpossibilities.Add(new int[] {0, -1});
-                piecemovementpossibilities.Add(new int[] {1, -1});
-                piecemovementpossibilities.Add(new int[] {-1, -1});
+                piecemovementpossibilities.Add(new int[] { 0, -2 });
+                piecemovementpossibilities.Add(new int[] { 0, -1 });
+                piecemovementpossibilities.Add(new int[] { 1, -1 });
+                piecemovementpossibilities.Add(new int[] { -1, -1 });
 
                 Chesspieces pawn = new Chesspieces(Properties.Resources.pawn, 6, i, "white", piecemovementpossibilities, "Pawn");
                 pawn.PlacePiece(pawn.PositionX, pawn.PositionY, labels);
@@ -81,11 +72,11 @@ namespace Chess
                 piecemovementpossibilities.Clear();
             }
 
-            for(int i = 0; i < 8; i++)
+            for (int i = 0; i < 8; i++)
             {
                 piecemovementpossibilities.Add(new int[] { 0, 2 });
                 piecemovementpossibilities.Add(new int[] { 0, 1 });
-                piecemovementpossibilities.Add(new int[] { 1, 1 }); 
+                piecemovementpossibilities.Add(new int[] { 1, 1 });
                 piecemovementpossibilities.Add(new int[] { -1, 1 });
 
                 Chesspieces blackpawn = new Chesspieces(Properties.Resources.blackpawn, 1, i, "black", piecemovementpossibilities, "Pawn");
@@ -95,11 +86,11 @@ namespace Chess
                 piecemovementpossibilities.Clear();
             }
             #endregion
+
+            // ... (Keep all other piece initialization code exactly the same)
             #region Knight
-
-
             // Move 2 squares up, 1 square right
-            piecemovementpossibilities.Add(new int[] {1, -2});
+            piecemovementpossibilities.Add(new int[] { 1, -2 });
             // Move 2 squares up, 1 square left
             piecemovementpossibilities.Add(new int[] { -1, -2 });
             // Move 2 squares down, 1 square right
@@ -107,15 +98,15 @@ namespace Chess
             // Move 2 squares down, 1 square left
             piecemovementpossibilities.Add(new int[] { -1, 2 });
             // Move 1 square up, 2 squares right
-            piecemovementpossibilities.Add(new int[] { 2, -1});
+            piecemovementpossibilities.Add(new int[] { 2, -1 });
             // Move 1 square up, 2 squares left
             piecemovementpossibilities.Add(new int[] { -2, -1 });
             // Move 1 square down, 2 squares right
             piecemovementpossibilities.Add(new int[] { 2, 1 });
             // Move 1 square down, 2 squares left
-            piecemovementpossibilities.Add(new int[] { -2, 1});
+            piecemovementpossibilities.Add(new int[] { -2, 1 });
 
-            Chesspieces knight = new Chesspieces(Properties.Resources.knight, 7, 6, "white", piecemovementpossibilities, "Knight"  );
+            Chesspieces knight = new Chesspieces(Properties.Resources.knight, 7, 6, "white", piecemovementpossibilities, "Knight");
             Chesspieces knight2 = new Chesspieces(Properties.Resources.knight, 7, 1, "white", piecemovementpossibilities, "Knight");
             knight.PlacePiece(knight.PositionX, knight.PositionY, labels);
             knight2.PlacePiece(knight2.PositionX, knight2.PositionY, labels);
@@ -126,22 +117,20 @@ namespace Chess
             blacknight2.PlacePiece(blacknight2.PositionX, blacknight2.PositionY, labels);
 
             piecemovementpossibilities.Clear();
-
             #endregion
+
             #region Rock
-
-
             for (int i = -7; i < 7; i++)
             {
-                if(i != 0)
+                if (i != 0)
                 {
                     piecemovementpossibilities.Add(new int[] { 0, i });
                 }
-            }            
-            
+            }
+
             for (int i = -7; i < 7; i++)
             {
-                if(i != 0)
+                if (i != 0)
                 {
                     piecemovementpossibilities.Add(new int[] { i, 0 });
                 }
@@ -158,10 +147,9 @@ namespace Chess
             blackrook2.PlacePiece(blackrook2.PositionX, blackrook2.PositionY, labels);
 
             piecemovementpossibilities.Clear();
-
             #endregion
-            #region Bishop
 
+            #region Bishop
             int[] bishopRange = new int[2];
 
             for (int i = 1; i < 7; i++)
@@ -176,12 +164,10 @@ namespace Chess
                 piecemovementpossibilities.Add(new int[] { i * -1, i });
 
                 // --
-                piecemovementpossibilities.Add(new int[] {  i * -1, i * -1 });
-
-
+                piecemovementpossibilities.Add(new int[] { i * -1, i * -1 });
             }
 
-            Chesspieces bishop = new Chesspieces(Properties.Resources.bishop,7,5 , "white", piecemovementpossibilities, "Bishop");
+            Chesspieces bishop = new Chesspieces(Properties.Resources.bishop, 7, 5, "white", piecemovementpossibilities, "Bishop");
             Chesspieces bishop2 = new Chesspieces(Properties.Resources.bishop, 7, 2, "white", piecemovementpossibilities, "Bishop");
             bishop.PlacePiece(bishop.PositionX, bishop.PositionY, labels);
             bishop2.PlacePiece(bishop2.PositionX, bishop2.PositionY, labels);
@@ -192,8 +178,8 @@ namespace Chess
             blackbishop2.PlacePiece(blackbishop2.PositionX, blackbishop2.PositionY, labels);
 
             piecemovementpossibilities.Clear();
-
             #endregion
+
             #region queen
             for (int i = 1; i < 7; i++)
             {
@@ -201,24 +187,19 @@ namespace Chess
                 piecemovementpossibilities.Add(new int[] { i, i });
 
                 // +-
-
                 piecemovementpossibilities.Add(new int[] { i, i * -1 });
 
                 // -+
-
                 piecemovementpossibilities.Add(new int[] { i * -1, i });
                 // --
-
-                piecemovementpossibilities.Add(new int[] { i * -1,  i * -1 });
+                piecemovementpossibilities.Add(new int[] { i * -1, i * -1 });
             }
 
             for (int i = -7; i < 7; i++)
             {
-                if(i != 0)
+                if (i != 0)
                 {
-
                     piecemovementpossibilities.Add(new int[] { 0, i });
-
                     piecemovementpossibilities.Add(new int[] { i, 0 });
                 }
             }
@@ -227,39 +208,28 @@ namespace Chess
             queen.PlacePiece(queen.PositionX, queen.PositionY, labels);
             blackqueen.PlacePiece(blackqueen.PositionX, blackqueen.PositionY, labels);
 
-
             piecemovementpossibilities.Clear();
             #endregion
+
             #region king
             int[] kingrange = new int[2];
 
-           
             piecemovementpossibilities.Add(new int[] { 0, 1 });
-
             piecemovementpossibilities.Add(new int[] { 1, 0 });
-
             piecemovementpossibilities.Add(new int[] { -1, 0 });
-        
             piecemovementpossibilities.Add(new int[] { 0, -1 });
-
             piecemovementpossibilities.Add(new int[] { 1, 1 });
-
             piecemovementpossibilities.Add(new int[] { -1, -1 });
-
             piecemovementpossibilities.Add(new int[] { -1, 1 });
-
             piecemovementpossibilities.Add(new int[] { 1, -1 });
 
-            Chesspieces blacking = new Chesspieces(Properties.Resources.blackking,0,4 , "black", piecemovementpossibilities, "King");
+            Chesspieces blacking = new Chesspieces(Properties.Resources.blackking, 0, 4, "black", piecemovementpossibilities, "King");
             Chesspieces king = new Chesspieces(Properties.Resources.king, 7, 4, "white", piecemovementpossibilities, "King");
             blacking.PlacePiece(blacking.PositionX, blacking.PositionY, labels);
             king.PlacePiece(king.PositionX, king.PositionY, labels);
 
-
             piecemovementpossibilities.Clear();
             #endregion
-
-
 
             pieces.Add(rook2);
             pieces.Add(knight);
@@ -277,7 +247,8 @@ namespace Chess
             pieces.Add(blackbishop2);
             pieces.Add(blackrook);
             pieces.Add(blackrook2);
-            // Initialize the king refenrence
+
+            // Initialize the king reference
             InitializeKingReferences();
 
             // Set the initial turn
@@ -285,11 +256,54 @@ namespace Chess
 
             // Set the initial game state
             gamestate = GameState.Normal;
-
         }
+
+        // NEW: Helper methods for coordinate conversion
+        private (int visualX, int visualY) LogicalToVisual(int logicalX, int logicalY)
+        {
+            if (isBoardRotated)
+            {
+                return (7 - logicalX, 7 - logicalY);
+            }
+            return (logicalX, logicalY);
+        }
+
+        private (int logicalX, int logicalY) VisualToLogical(int visualX, int visualY)
+        {
+            if (isBoardRotated)
+            {
+                return (7 - visualX, 7 - visualY);
+            }
+            return (visualX, visualY);
+        }
+
+        // NEW: Method to properly rotate the board display
+        private void RotateBoard()
+        {
+            isBoardRotated = !isBoardRotated;
+
+            // Clear the visual board
+            for (int row = 0; row < 8; row++)
+            {
+                for (int col = 0; col < 8; col++)
+                {
+                    labels[row, col].Image = null;
+                    labels[row, col].Tag = col + "-" + row; // Reset to basic position tag
+                }
+            }
+
+            // Re-place all pieces at their new visual positions
+            foreach (var piece in pieces)
+            {
+                var (visualX, visualY) = LogicalToVisual(piece.PositionX, piece.PositionY);
+                labels[visualY, visualX].Image = piece.image;
+                labels[visualY, visualX].Tag = visualX + "-" + visualY + "/" + piece.color + "-" + piece.piecename;
+            }
+        }
+
         private void InitializeKingReferences()
         {
-            foreach(var piece in pieces)
+            foreach (var piece in pieces)
             {
                 if (piece.piecename == "King" && piece.color == "white")
                 {
@@ -336,13 +350,11 @@ namespace Chess
                     string[] posParts = tagParts[0].Split('-');
                     if (posParts.Length >= 2)
                     {
-                        int clickedX = Convert.ToInt32(posParts[0]);
-                        int clickedY = Convert.ToInt32(posParts[1]);
+                        int clickedVisualX = Convert.ToInt32(posParts[0]);
+                        int clickedVisualY = Convert.ToInt32(posParts[1]);
 
-                        // Convert visual coordinates to logical coordinates if board is rotated
-                        int logicalX = clickedX;
-                        int logicalY = clickedY;
-       
+                        // Convert visual coordinates to logical coordinates
+                        var (logicalX, logicalY) = VisualToLogical(clickedVisualX, clickedVisualY);
 
                         // Find the piece at the logical position
                         foreach (var item in pieces)
@@ -354,8 +366,9 @@ namespace Chess
                                     MessageBox.Show($"Your king is in check! Only your king can move.");
                                     return;
                                 }
-                                item.GetMovePossibilities(labels);
-                                FilterMovesLeadingToCheck(item);
+                                // Use the rotation-aware method
+                                item.GetMovePossibilitiesWithRotation(labels, isBoardRotated);
+                                // FilterMovesLeadingToCheck(item);
                                 chesspieceClicked = item;
                                 break;
                             }
@@ -375,13 +388,11 @@ namespace Chess
                     string[] posParts = tagParts[0].Split('-');
                     if (posParts.Length >= 2)
                     {
-                        int clickedX = Convert.ToInt32(posParts[0]);
-                        int clickedY = Convert.ToInt32(posParts[1]);
+                        int clickedVisualX = Convert.ToInt32(posParts[0]);
+                        int clickedVisualY = Convert.ToInt32(posParts[1]);
 
-                        // Convert visual coordinates to logical coordinates if board is rotated
-                        int logicalX = clickedX;
-                        int logicalY = clickedY;
-                        
+                        // Convert visual coordinates to logical coordinates
+                        var (logicalX, logicalY) = VisualToLogical(clickedVisualX, clickedVisualY);
 
                         // If this is a capture, remove the captured piece from the pieces list
                         if (Convert.ToString(clicked_label.Tag).Contains("/Cantake"))
@@ -404,11 +415,11 @@ namespace Chess
                         }
 
                         // Move the piece to the new logical position
-                        chesspieceClicked.MovePieceLogical(logicalX, logicalY, labels);
+                        chesspieceClicked.MovePieceWithRotation(logicalX, logicalY, labels, isBoardRotated);
                         currentPlayerTurn = (currentPlayerTurn == "white") ? "black" : "white";
 
                         // Rotate the board after the turn changes
-                        // RotateBoard();
+                        RotateBoard();
 
                         MessageBox.Show("it's " + currentPlayerTurn + 's' + " turn");
                         CheckForCheckAndCheckmate();
@@ -431,6 +442,9 @@ namespace Chess
                        (labels[y, x].Tag.ToString().Contains("/Canmove") ||
                         labels[y, x].Tag.ToString().Contains("/Cantake")))
                     {
+                        // Convert visual coordinates to logical coordinates
+                        var (logicalX, logicalY) = VisualToLogical(x, y);
+
                         // Save the original position.
                         int originalX = piece.PositionX;
                         int originalY = piece.PositionY;
@@ -439,7 +453,7 @@ namespace Chess
                         Chesspieces capturedPiece = null;
                         foreach (var p in pieces.ToList()) // Use ToList() to avoid modification during iteration
                         {
-                            if (p.PositionX == x && p.PositionY == y && p != piece)
+                            if (p.PositionX == logicalX && p.PositionY == logicalY && p != piece)
                             {
                                 capturedPiece = p;
                                 pieces.Remove(capturedPiece);
@@ -448,8 +462,8 @@ namespace Chess
                         }
 
                         // Temporarily make the move
-                        piece.PositionX = x;
-                        piece.PositionY = y;
+                        piece.PositionX = logicalX;
+                        piece.PositionY = logicalY;
 
                         // Check if this move would put our king in check.
                         bool wouldbeInCheck = IsKingInCheck(piece.color);
@@ -464,7 +478,7 @@ namespace Chess
                             pieces.Add(capturedPiece);
                         }
 
-                        // if it would put us in check, add to invalid moves
+                        // if it would put us in check, add to invalid moves (use visual coordinates)
                         if (wouldbeInCheck)
                         {
                             invalidMoves.Add(new Tuple<int, int>(x, y));
@@ -499,15 +513,13 @@ namespace Chess
                 }
             }
         }
+
         private bool IsKingInCheck(string kingColor)
         {
             // Find the king's position
             Chesspieces king = (kingColor == "white") ? whiteKing : blackKing;
             int kingX = king.PositionX;
             int kingY = king.PositionY;
-
-            // Debug: Show king position
-            // MessageBox.Show($"Checking if {kingColor} king at position ({kingX},{kingY}) is in check");
 
             // Check if an opponent piece can attack the king's position
             string opponentColor = (kingColor == "white") ? "black" : "white";
@@ -519,45 +531,23 @@ namespace Chess
             {
                 if (piece.color == opponentColor)
                 {
-                    // MessageBox.Show($"Checking {piece.color} {piece.piecename} at ({piece.PositionX},{piece.PositionY})");
-
                     // Get the movement possibilities of the opponent piece
-                    piece.GetMovePossibilities(labels);
+                    piece.GetMovePossibilitiesWithRotation(labels, isBoardRotated);
 
-                    // Debug: After getting move possibilities, check what's in the king's position
-                    if (labels[kingY, kingX].Tag != null)
+                    // Convert king's logical position to visual position for checking
+                    var (kingVisualX, kingVisualY) = LogicalToVisual(kingX, kingY);
+
+                    if (labels[kingVisualY, kingVisualX].Tag != null)
                     {
-                        string kingPositionTag = labels[kingY, kingX].Tag.ToString();
-                        // MessageBox.Show($"King position tag: {kingPositionTag}");
+                        string kingPositionTag = labels[kingVisualY, kingVisualX].Tag.ToString();
 
                         if (kingPositionTag.Contains("/Canmove") || kingPositionTag.Contains("/Cantake"))
                         {
-                            // MessageBox.Show($"{piece.piecename} at ({piece.PositionX},{piece.PositionY}) can attack king!");
                             // Clean up before returning
                             ClearMoveIndicators();
                             return true;
                         }
                     }
-                    else
-                    {
-                        // MessageBox.Show("King position tag is null");
-                    }
-
-                    // Count how many squares are marked as move possibilities
-                    int moveCount = 0;
-                    for (int y = 0; y < 8; y++)
-                    {
-                        for (int x = 0; x < 8; x++)
-                        {
-                            if (labels[y, x].Tag != null &&
-                               (labels[y, x].Tag.ToString().Contains("/Canmove") ||
-                                labels[y, x].Tag.ToString().Contains("/Cantake")))
-                            {
-                                moveCount++;
-                            }
-                        }
-                    }
-                    // MessageBox.Show($"This piece has {moveCount} possible moves");
 
                     // Clear move indicators after checking each piece
                     ClearMoveIndicators();
@@ -565,7 +555,6 @@ namespace Chess
             }
             return false;
         }
-
 
         private void CheckForCheckAndCheckmate()
         {
@@ -609,7 +598,7 @@ namespace Chess
             }
         }
 
-        private bool IsCheckmate(string kingColor) 
+        private bool IsCheckmate(string kingColor)
         {
             // First check if the king is even in check
             if (!IsKingInCheck(kingColor))
@@ -631,7 +620,7 @@ namespace Chess
                 ClearMoveIndicators();
 
                 // Get all possible moves for this piece
-                piece.GetMovePossibilities(labels);
+                piece.GetMovePossibilitiesWithRotation(labels, isBoardRotated);
 
                 // Check each possible move
                 for (int y = 0; y < 8; y++)
@@ -642,10 +631,11 @@ namespace Chess
                            (labels[y, x].Tag.ToString().Contains("/Canmove") ||
                             labels[y, x].Tag.ToString().Contains("/Cantake")))
                         {
-                            // Found a potential move
+                            // Found a potential move - convert to logical coordinates
+                            var (logicalX, logicalY) = VisualToLogical(x, y);
 
                             // Keep track of all the pieces on the board before the move
-                            var removedPiece = pieces.FirstOrDefault(p => p.PositionX == x && p.PositionY == y && p != piece);
+                            var removedPiece = pieces.FirstOrDefault(p => p.PositionX == logicalX && p.PositionY == logicalY && p != piece);
                             bool hadRemovedPiece = removedPiece != null;
 
                             // Temporarily remove any piece at the destination square
@@ -655,8 +645,8 @@ namespace Chess
                             }
 
                             // Temporarily move the piece
-                            piece.PositionX = x;
-                            piece.PositionY = y;
+                            piece.PositionX = logicalX;
+                            piece.PositionY = logicalY;
 
                             // Check if this move resolves the check
                             bool stillInCheck = IsKingInCheck(kingColor);
@@ -689,10 +679,6 @@ namespace Chess
             return true;
         }
 
-
-        // Helper method to clear all move indicators
-        
-
         private bool CanPieceMoveInCheck(Chesspieces piece)
         {
             // If we're not in check, any piece can move
@@ -700,7 +686,7 @@ namespace Chess
             {
                 return true;
             }
-            
+
             // If we're in check, only the current player's king can move
             if (piece.color == currentPlayerTurn && piece.piecename == "King")
             {
@@ -719,69 +705,6 @@ namespace Chess
             Debug.WriteLine($"Blocking {piece.color} {piece.piecename} from moving while king is in check");
             return false;
         }
-        /*
-        private void RotateBoard()
-        {
-            // Create temporary arrays to hold the rotated board state
-            Image[,] tempImages = new Image[8, 8];
-            object[,] tempTags = new object[8, 8];
-
-            // Copy current state and rotate 180 degrees
-            for (int row = 0; row < 8; row++)
-            {
-                for (int col = 0; col < 8; col++)
-                {
-                    int newRow = 7 - row;
-                    int newCol = 7 - col;
-
-                    tempImages[newRow, newCol] = labels[row, col].Image;
-                    tempTags[newRow, newCol] = labels[row, col].Tag;
-                }
-            }
-
-            // Apply the rotated state back to the labels
-            for (int row = 0; row < 8; row++)
-            {
-                for (int col = 0; col < 8; col++)
-                {
-                    labels[row, col].Image = tempImages[row, col];
-                    labels[row, col].Tag = tempTags[row, col];
-                }
-            }
-
-            // Update all piece positions to match the rotated board
-            foreach (var piece in pieces)
-            {
-                int newX = 7 - piece.PositionX;
-                int newY = 7 - piece.PositionY;
-                piece.PositionX = newX;
-                piece.PositionY = newY;
-            }
-
-            // Update the tags to reflect the new positions
-            for (int row = 0; row < 8; row++)
-            {
-                for (int col = 0; col < 8; col++)
-                {
-                    if (labels[row, col].Tag != null)
-                    {
-                        string tagStr = labels[row, col].Tag.ToString();
-                        string[] parts = tagStr.Split('/');
-
-                        // Update the position part of the tag
-                        parts[0] = col + "-" + row;
-
-                        // Reconstruct the tag
-                        labels[row, col].Tag = string.Join("/", parts);
-                    }
-                    else
-                    {
-                        // Set basic position tag if none exists
-                        labels[row, col].Tag = col + "-" + row;
-                    }
-                }
-            }
-        }*/
 
         private void ClearMoveIndicators()
         {
@@ -839,11 +762,11 @@ namespace Chess
                 }
             }
         }
+
         // method to restart the game once someone get checkmated
         private void ResetGame()
         {
             Application.Restart();
         }
-
     }
 }
